@@ -54,7 +54,7 @@ class Sqlite {
     await db.execute('''
         CREATE TABLE $journeyTable (
           jid integer  PRIMARY KEY AUTOINCREMENT,
-          uID int,
+          uID text,
           journeyName text,
           journeyStartTime int,
           journeyEndTime int,
@@ -166,5 +166,14 @@ class Sqlite {
       required int deleteId}) async {
     final Database? database = await open;
     return await database?.delete(tableName, where: '$tableIdName=$deleteId');
+  }
+
+  // 清空資料表
+  static Future<void> clear({
+    required String tableName,
+  }) async {
+    final Database? database = await open;
+    print("以清空 $tableName 資料表");
+    return await database?.execute('DELETE FROM `$tableName`;');
   }
 }

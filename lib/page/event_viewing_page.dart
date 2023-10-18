@@ -2,6 +2,7 @@
 
 import 'package:create_event2/page/event_editing_page.dart';
 import 'package:create_event2/provider/event_provider.dart';
+import 'package:create_event2/services/http.dart';
 // ignore: unused_import
 import 'package:create_event2/utils.dart';
 import 'package:flutter/material.dart';
@@ -229,16 +230,23 @@ class _EventViewingPageState extends State<EventViewingPage> {
               Navigator.of(context).pop();
             },
             onConfirm: () async {
-              await Sqlite.deleteJourney(
-                tableName: 'journey',
-                tableIdName: 'jid',
-                deleteId: _currentEvent.jid ?? 0,
-              );
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/MyBottomBar2',
-                ModalRoute.withName('/'),
-              );
+              final List result = await APIservice.deleteJourney(
+                  content: _currentEvent.toMap(), jID: 112);
+              print(result[0]);
+              if (result[0]) {
+                var result = await Sqlite.deleteJourney(
+                  tableName: 'journey',
+                  tableIdName: 'jid',
+                  deleteId: _currentEvent.jid ?? 0,
+                );
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/MyBottomBar2',
+                  ModalRoute.withName('/'),
+                );
+              } else {
+                print('在server刪除行程失敗');
+              }
             },
           );
         },

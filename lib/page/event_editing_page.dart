@@ -102,8 +102,20 @@ class _EventEditingPageState extends State<EventEditingPage> {
       return Event(
           jid: eventData['jID'],
           journeyName: eventData['journeyName'],
-          journeyStartTime: DateTime.parse(eventData['journeyStartTime']),
-          journeyEndTime: DateTime.parse(eventData['journeyEndTime']),
+          journeyStartTime: DateTime(
+              eventData['journeyStartTime'] ~/ 100000000, // 年
+              (eventData['journeyStartTime'] % 100000000) ~/ 1000000, // 月
+              (eventData['journeyStartTime'] % 1000000) ~/ 10000, // 日
+              (eventData['journeyStartTime'] % 10000) ~/ 100, // 小时
+              eventData['journeyStartTime'] % 100 // 分钟
+              ),
+          journeyEndTime: DateTime(
+              eventData['journeyEndTime'] ~/ 100000000, // 年
+              (eventData['journeyEndTime'] % 100000000) ~/ 1000000, // 月
+              (eventData['journeyEndTime'] % 1000000) ~/ 10000, // 日
+              (eventData['journeyEndTime'] % 10000) ~/ 100, // 小时
+              eventData['journeyEndTime'] % 100 // 分钟
+              ),
           color: Color(eventData['color']),
           location: eventData['location'],
           remark: eventData['remark'],
@@ -647,10 +659,11 @@ class _EventEditingPageState extends State<EventEditingPage> {
   Future saveForm() async {
     await Sqlite.initDatabase();
     final isvalid = _formKey.currentState!.validate();
-
+    String uID = 'q';
+    // int uID = 1;
     if (isvalid) {
       final Event event = Event(
-          uid: 1,
+          uID: uID,
           journeyName: titleController.text,
           location: locationController.text,
           journeyStartTime: fromDate,
@@ -670,14 +683,22 @@ class _EventEditingPageState extends State<EventEditingPage> {
             updateData: event.toMap(),
             tableIdName: 'jid',
             updateID: jID);
-        print('編輯成功');
-        print(event);
-        Navigator.of(context).pop(event);
+        final result =
+            await APIservice.editJourney(content: event.toMap(), jID: 112);
+        // event.jid!
+        print(result[0]);
+
+        if (result[0]) {
+          print('編輯成功');
+          Navigator.of(context).pop(event);
+        } else {
+          print('在server編輯行程失敗');
+        }
+
         //新增行程
       } else {
         // provider.addEvent(event);
         await Sqlite.insert(tableName: 'journey', insertData: event.toMap());
-        // List result = await APIservice.addJourney();
         final result = await APIservice.addJourney(content: event.toMap());
         print(result[0]);
         if (result[0]) {
@@ -689,12 +710,6 @@ class _EventEditingPageState extends State<EventEditingPage> {
         } else {
           print('$result 在 server 新增活動失敗');
         }
-        print(result);
-        // Navigator.pushNamedAndRemoveUntil(
-        //   context,
-        //   '/MyBottomBar2',
-        //   ModalRoute.withName('/'),
-        // );
       }
     }
   }

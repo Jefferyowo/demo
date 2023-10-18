@@ -141,6 +141,7 @@ class _SearchPageState extends State<SearchPage> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: StreamBuilder(
+                //搜尋需更改讓他監聽
                 stream: Stream.fromFuture(fetchData(searchString)),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Event {
   final int? jid; //
-  final int? uid;
+  final String? uID;
   final String journeyName; //
   final DateTime journeyStartTime; //
   final DateTime journeyEndTime; //
@@ -15,7 +15,7 @@ class Event {
 
   const Event({
     this.jid,
-    this.uid,
+    this.uID,
     required this.journeyName,
     required this.journeyStartTime,
     required this.journeyEndTime,
@@ -50,7 +50,7 @@ class Event {
         );
     return Event(
       jid: map['jid'],
-      uid: map['uid'],
+      uID: map['uID'],
       journeyName: map['journeyName'],
       journeyStartTime: journeyStartTime,
       journeyEndTime: journeyEndTime,
@@ -66,7 +66,7 @@ class Event {
   Map<String, dynamic> toMap() {
     return {
       'journeyName': journeyName,
-      'uID': uid,
+      'uID': uID,
       'journeyStartTime': journeyStartTime.year * 100000000 +
           journeyStartTime.month * 1000000 +
           journeyStartTime.day * 10000 +
