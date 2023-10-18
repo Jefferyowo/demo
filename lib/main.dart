@@ -4,6 +4,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_print
 
 import 'package:create_event2/provider/event_provider.dart';
+import 'package:create_event2/provider/vote_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -32,8 +33,11 @@ class MyApp extends StatelessWidget {
 
   const MyApp({super.key});
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => EventProvider(),
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => EventProvider()),
+          ChangeNotifierProvider(create: (context) => VoteProvider()),
+        ],
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -197,7 +201,7 @@ class Activity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Activity'),
+      child: Text('Activitys'),
     );
   }
 }

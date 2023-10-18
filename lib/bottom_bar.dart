@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:create_event2/page/chat_room_page.dart';
 import 'package:flutter/material.dart';
 import 'package:create_event2/main.dart';
 import 'package:create_event2/page/event_editing_page.dart';
@@ -22,7 +23,7 @@ class _MyBottomBarState extends State<MyBottomBar> {
   bool _showBottomNavBar = true;
 
   final List<Widget> _screens = [
-    Activity(), //0
+    ChatRoomPage(), //0
     EventEditingPage(
       addTodayDate: false,
       time: DateTime.now(),
