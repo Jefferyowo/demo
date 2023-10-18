@@ -237,7 +237,7 @@ class _EventViewingPageState extends State<EventViewingPage> {
                 var result = await Sqlite.deleteJourney(
                   tableName: 'journey',
                   tableIdName: 'jid',
-                  deleteId: _currentEvent.jid ?? 0,
+                  deleteId: _currentEvent.jID ?? 0,
                 );
                 Navigator.pushNamedAndRemoveUntil(
                   context,

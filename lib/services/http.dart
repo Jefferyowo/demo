@@ -1,4 +1,5 @@
 import 'package:create_event2/model/event.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:create_event2/model/event.dart';
@@ -70,16 +71,16 @@ class APIservice {
     print('刷新 sqlite 活動資料表');
     String url = "http://163.22.17.145:3000/api/journey/$uID";
     await Sqlite.clear(tableName: "journey").then((value) async {
-      await http.get(
-        Uri.parse(url),
-        headers: <String, String>{'Content-Type': 'application/json'},
-      ).then((response) {
+      await http
+          .post(Uri.parse(url),
+              headers: <String, String>{'Content-Type': 'application/json'},
+              body: jsonEncode(content))
+          .then((response) {
         final serverJourney = jsonDecode(response.body);
-        print('stop');
         if (response.statusCode == 200 || response.statusCode == 400) {
           for (var journey in serverJourney) {
             final Event newJourneyData = Event(
-                jid: journey['jID'],
+                jID: journey['jID'],
                 uID: journey['uID'],
                 journeyName: journey['jouurneyName'],
                 journeyStartTime: journey['journeyStartTime'],
@@ -102,5 +103,54 @@ class APIservice {
         }
       });
     });
+  }
+
+  static Future<List<dynamic>> selectAll(
+      {required Map<String, dynamic> content, required String uID}) async {
+    final url = Uri.parse("http://163.22.17.145:3000/api/journey/$uID");
+    await Sqlite.clear(tableName: "journey");
+    final response = await http.post(
+      url,
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(content),
+    );
+    final serverJourney = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      for (var journey in serverJourney) {
+        int journeyStartTimeInt = journey['journeyStartTime'];
+        int journeyEndTimeInt = journey['journeyEndTime'];
+        final Event newJourneyData = Event(
+            jID: journey['jID'],
+            uID: journey['uID'],
+            journeyName: journey['journeyName'].toString(),
+            journeyStartTime: DateTime(
+                journeyStartTimeInt ~/ 100000000, // 年
+                (journeyStartTimeInt % 100000000) ~/ 1000000, // 月
+                (journeyStartTimeInt % 1000000) ~/ 10000, // 日
+                (journeyStartTimeInt % 10000) ~/ 100, // 小时
+                journeyStartTimeInt % 100 // 分钟
+                ),
+            journeyEndTime: DateTime(
+                journeyEndTimeInt ~/ 100000000, // 年
+                (journeyEndTimeInt % 100000000) ~/ 1000000, // 月
+                (journeyEndTimeInt % 1000000) ~/ 10000, // 日
+                (journeyEndTimeInt % 10000) ~/ 100, // 小时
+                journeyEndTimeInt % 100 // 分钟
+                ),
+            color: Color(journey['color']),
+            location: journey['location'],
+            remark: journey['remark'],
+            remindTime: journey['remindTime'],
+            remindStatus: journey['remindStatus'] == 1,
+            isAllDay: journey['isAllDay'] == 1);
+        Sqlite.insert(tableName: 'journey', insertData: newJourneyData.toMap());
+      }
+      print('完成 刷新 sqlite 活動資料表');
+      return serverJourney;
+    } else {
+      print('失敗 刷新 sqlite 活動資料表');
+      print('失敗 $serverJourney response.statusCode ${response.statusCode}');
+      return serverJourney;
+    }
   }
 }

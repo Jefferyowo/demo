@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Event {
-  final int? jid; //
+  final int? jID; //
   final String? uID;
   final String journeyName; //
   final DateTime journeyStartTime; //
@@ -14,7 +14,7 @@ class Event {
   final bool isAllDay;
 
   const Event({
-    this.jid,
+    this.jID,
     this.uID,
     required this.journeyName,
     required this.journeyStartTime,
@@ -49,7 +49,7 @@ class Event {
         journeyEndTimeInt % 100 // 分钟
         );
     return Event(
-      jid: map['jid'],
+      jID: map['jID'],
       uID: map['uID'],
       journeyName: map['journeyName'],
       journeyStartTime: journeyStartTime,
@@ -65,6 +65,7 @@ class Event {
   // journeyStartTime.year * 100000000 +journeyStartTime.month * 1000000 +journeyStartTime.day * 10000 +journeyStartTime.hour * 100 +journeyStartTime.minute
   Map<String, dynamic> toMap() {
     return {
+      'jID': jID,
       'journeyName': journeyName,
       'uID': uID,
       'journeyStartTime': journeyStartTime.year * 100000000 +

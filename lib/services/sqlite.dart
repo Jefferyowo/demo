@@ -53,7 +53,7 @@ class Sqlite {
     // uID integer 有需要?
     await db.execute('''
         CREATE TABLE $journeyTable (
-          jid integer  PRIMARY KEY AUTOINCREMENT,
+          jID integer,
           uID text,
           journeyName text,
           journeyStartTime int,
@@ -97,7 +97,6 @@ class Sqlite {
       int? result = await database?.insert(tableName, insertData,
           conflictAlgorithm: ConflictAlgorithm.replace);
       result ??= 0;
-      print('儲存成功');
       return [true, result];
     } catch (err) {
       print('DbException$err');

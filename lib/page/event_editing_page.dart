@@ -65,7 +65,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
       }
     } else {
       // 編輯
-      jID = widget.event!.jid!;
+      jID = widget.event!.jID!;
       print('編輯印出jid:$jID');
       fetchEventData();
     }
@@ -100,7 +100,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
     if (queryResult != null && queryResult.isNotEmpty) {
       Map<String, dynamic> eventData = queryResult.first;
       return Event(
-          jid: eventData['jID'],
+          jID: eventData['jID'],
           journeyName: eventData['journeyName'],
           journeyStartTime: DateTime(
               eventData['journeyStartTime'] ~/ 100000000, // 年
