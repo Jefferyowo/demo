@@ -85,9 +85,11 @@ class _MainPageState extends State<MainPage> {
   // 顯示行事曆方式controller
   final CalendarController _controller = CalendarController();
   List<Event> eventTest = [];
+  bool hasGet = false;
 
   @override
   void initState() {
+    Sqlite.dropDatabase();
     getCalendarDate();
     super.initState();
   }
@@ -98,20 +100,20 @@ class _MainPageState extends State<MainPage> {
   }
 
   getCalendarDate() async {
-    //await Sqlite.dropDatabase();
     // 從server抓使用者行事曆資料
-    var userID = {'uid': '5533'};
-    final result = await APIservice.selectAll(content: userID, uID: '5533');
-    print(result);
+    var userID = {'uid': '12345'};
+
+    final result = await APIservice.selectAll(content: userID, uID: '12345');
+    print(result[0]);
     await Sqlite.open; //開啟資料庫
     List? queryCalendarTable = await Sqlite.queryAll(tableName: 'journey');
     queryCalendarTable ??= [];
     setState(() {
       eventTest = queryCalendarTable!.map((e) => Event.fromMap(e)).toList();
     });
-    // for (var element in queryCalendarTable) {
-    //   print(element);
-    // }
+    for (var element in queryCalendarTable) {
+      print(element);
+    }
     print(eventTest);
     return queryCalendarTable;
   }

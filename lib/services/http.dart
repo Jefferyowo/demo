@@ -75,7 +75,7 @@ class APIservice {
           .post(Uri.parse(url),
               headers: <String, String>{'Content-Type': 'application/json'},
               body: jsonEncode(content))
-          .then((response) {
+          .then((response) async {
         final serverJourney = jsonDecode(response.body);
         if (response.statusCode == 200 || response.statusCode == 400) {
           for (var journey in serverJourney) {
@@ -91,7 +91,7 @@ class APIservice {
                 remindTime: journey['remindTime'],
                 remindStatus: journey['remindStatus'],
                 isAllDay: journey['isAllDay']);
-            Sqlite.insert(
+            await Sqlite.insert(
                 tableName: 'journey', insertData: newJourneyData.toMap());
             print('完成 刷新 sqlite 活動資料表');
             return [serverJourney];
