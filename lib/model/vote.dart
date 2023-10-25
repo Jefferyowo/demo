@@ -1,65 +1,69 @@
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter/material.dart';
+// import 'package:uuid/uuid.dart';
 
 class Vote {
-  final String id; // 新增的id属性
-  final String question;
-  final DateTime selectedDate;
-  final bool isMultipleChoice;
-  final List<String> options;
-  final List<int> optionVotes;
+  final int? vID;
+  final int? eID;
+  final String? uID; // 新增的id属性
+  final String voteName;
+  final DateTime endTime;
+  final bool singleOrMultipleChoice;
+
+  // String id;
+  // final List<String> votingOptionContent;
+  // final List<int> optionVotes;
 
   // 构造函数，用于初始化对象
-  Vote({
-    required this.id, // 新增的id参数
-    required this.question,
-    required this.selectedDate,
-    required this.isMultipleChoice,
-    required this.options,
-    required this.optionVotes,
+  const Vote({
+    required this.vID,
+    required this.eID,
+    required this.uID, 
+    required this.voteName,
+    required this.endTime,
+    required this.singleOrMultipleChoice,
+    // required this.id,
+    // required this.votingOptionContent,
+    // required this.optionVotes,
   });
 
-  // 你可以使用下面的工厂构造函数来创建Vote对象，并自动生成id
-  factory Vote.create({
-    required String question,
-    required DateTime selectedDate,
-    required bool isMultipleChoice,
-    required List<String> options,
-    required List<int> optionVotes,
-  }) {
-    final id = Uuid().v4(); // 使用uuid库生成一个唯一的id
+  get start => null;
+
+  factory Vote.fromMap(Map<String, dynamic> map) {
+    int endTimeInt = map['endTime'];
+
+    DateTime endTime = DateTime(
+        endTimeInt ~/ 100000000, // 年
+        (endTimeInt % 100000000) ~/ 1000000, // 月
+        (endTimeInt % 1000000) ~/ 10000, // 日
+        (endTimeInt % 10000) ~/ 100, // 小时
+        endTimeInt % 100 // 分钟
+        );
     return Vote(
-      id: id,
-      question: question,
-      selectedDate: selectedDate,
-      isMultipleChoice: isMultipleChoice,
-      options: options,
-      optionVotes: optionVotes,
+      vID: map['vID'],
+      eID: map['eID'],
+      uID: map['uID'],
+      voteName: map['voteName'],
+      endTime: endTime,
+      singleOrMultipleChoice: map['singleOrMultipleChoice'] == 1,
     );
   }
 
-  // 您需要根据实际情况调整下面的方法
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! Vote) return false;
-
-    return other.id == id && // 比较id属性
-        other.question == question &&
-        other.selectedDate == selectedDate &&
-        other.isMultipleChoice == isMultipleChoice &&
-        listEquals(other.options, options) &&
-        listEquals(other.optionVotes, optionVotes);
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^ // 包含id属性
-        question.hashCode ^
-        selectedDate.hashCode ^
-        isMultipleChoice.hashCode ^
-        options.hashCode ^
-        optionVotes.hashCode;
+  Map<String, dynamic> toMap() {
+    return {
+      'vID': vID,
+      'eID': eID,
+      'uID': uID,
+      'voteName': voteName,
+      'endTime': endTime.year * 100000000 +
+          endTime.month * 1000000 +
+          endTime.day * 10000 +
+          endTime.hour * 100 +
+          endTime.minute, // 將 DateTime 轉換為 ISO 8601 字串
+      'singleOrMultipleChoice': singleOrMultipleChoice? 1 : 0,
+      // 'votingOptionContent': votingOptionContent,
+      // 'optionVotes': optionVotes,//資料庫名稱?
+      
+    };
   }
 }

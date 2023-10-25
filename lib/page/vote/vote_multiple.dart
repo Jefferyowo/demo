@@ -20,8 +20,8 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
   @override
   void initState() {
     super.initState();
-    selectedOptions = List.filled(widget.vote.options.length, false);
-    optionVotes = List.filled(widget.vote.options.length, 0); // 初始化投票数量为 0
+    // selectedOptions = List.filled(widget.vote.votingOptionContent.length, false);
+    // optionVotes = List.filled(widget.vote.optionVotes.length, 0); // 初始化投票数量为 0
   }
 
   @override
@@ -36,20 +36,20 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
           Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              widget.vote.question,
+              widget.vote.voteName,
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
           ),
           ListView.builder(
             shrinkWrap: true,
-            itemCount: widget.vote.options.length,
+            // itemCount: widget.vote.votingOptionContent.length,
             itemBuilder: (context, index) {
               return CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  '${widget.vote.options[index]} (${optionVotes[index]})',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                // title: Text(
+                //   '${widget.vote.votingOptionContent[index]} (${optionVotes[index]})',
+                //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // ),
                 value: selectedOptions[index],
                 onChanged: (bool? value) {
                   setState(() {

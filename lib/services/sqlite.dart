@@ -10,6 +10,7 @@ class Sqlite {
   static const friendTable = 'friend';
   static const journeyTable = 'journey';
   static const eventTable = 'event';
+  static const voteTable = 'vote';//
 
   static Database? db;
   static Future<Database?> get open async => db ??= await initDatabase();
@@ -86,6 +87,20 @@ class Sqlite {
         );
       ''');
     print('建立活動資料表');
+    // 投票
+    await db.execute('''
+        CREATE TABLE $voteTable (
+        vID integer,
+        eID integer,
+        uID text,
+        voteName text,
+        endTime int,
+        singleOrMultipleChoice integer,
+        votingOptionContent text,
+        optionVotes
+        );
+      ''');
+    print('建立投票資料表');
   }
 
   // 新增

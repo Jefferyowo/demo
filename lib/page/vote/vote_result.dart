@@ -17,7 +17,7 @@ class _VoteResultState extends State<VoteResult> {
   Widget build(BuildContext context) {
     return Consumer<VoteProvider>(
       builder: (context, voteProvider, child) {
-        final vote = voteProvider.getVoteById(widget.originalVote.id);
+        final vote = voteProvider.getVoteById(widget.originalVote.eID as String );
 
         if (vote == null) {
           return Scaffold(
@@ -39,7 +39,7 @@ class _VoteResultState extends State<VoteResult> {
         }
 
         // 计算总票数
-        final totalVotes = vote.optionVotes.reduce((a, b) => a + b);
+        // final totalVotes = vote.optionVotes.reduce((a, b) => a + b);
 
         return Scaffold(
           appBar: AppBar(
@@ -72,30 +72,30 @@ class _VoteResultState extends State<VoteResult> {
                   Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
-                      '${vote.question}',
+                      '${vote.voteName}',
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: vote.options.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(
-                            '${vote.options[index]}',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            '票数: ${vote.optionVotes[index]}',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.normal),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: ListView.builder(
+                  //     // itemCount: vote.votingOptionContent.length,
+                  //     itemBuilder: (context, index) {
+                  //       return ListTile(
+                  //         title: Text(
+                  //           '${vote.votingOptionContent[index]}',
+                  //           style: TextStyle(
+                  //               fontSize: 18, fontWeight: FontWeight.bold),
+                  //         ),
+                  //         subtitle: Text(
+                  //           '票数: ${vote.optionVotes[index]}',
+                  //           style: TextStyle(
+                  //               fontSize: 16, fontWeight: FontWeight.normal),
+                  //         ),
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             ],

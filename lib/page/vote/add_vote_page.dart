@@ -1,26 +1,70 @@
 // add_vote_page.dart
+
+import 'package:create_event2/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../model/vote.dart';
 import '../../provider/vote_provider.dart';
+import '../../services/http.dart';
+import '../../services/sqlite.dart';
 
 class AddVotePage extends StatefulWidget {
+  final Vote? vote;
+
+  const AddVotePage({
+    Key? key,
+    this.vote,
+  });
   @override
   _AddVotePageState createState() => _AddVotePageState();
 }
 
 class _AddVotePageState extends State<AddVotePage> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController questionController = TextEditingController();
-  List<String> options = [''];
-  DateTime _dateTime = DateTime.now();
-  String _endTime = DateFormat('hh:mm a').format(DateTime.now()).toString();
+  late DateTime endTime;
+  // DateTime _dateTime = DateTime.now();
+  // String _endTime = DateFormat('hh:mm a').format(DateTime.now()).toString();
   bool isChecked = false;
+  List<String> options = [''];
+  List<int> optionVotes = [];
 
   void addOption() {
     setState(() {
       options.add('');
     });
+  }
+
+  Future<Vote?> getvoteDataFromDatabase(int vid) async {
+    List<Map<String, dynamic>>? queryResult = await Sqlite.queryRow(
+        tableName: 'vote', key: 'vID', value: vid.toString());
+
+    if (queryResult != null && queryResult.isNotEmpty) {
+      Map<String, dynamic> voteData = queryResult.first;
+      return Vote(
+          vID: voteData['vID'],
+          eID: voteData['eID'],
+          uID: voteData['uID'],
+          voteName: voteData['voteName'],
+          endTime: DateTime(
+              voteData['endTime'] ~/ 100000000, // 年
+              (voteData['endTime'] % 100000000) ~/ 1000000, // 月
+              (voteData['endTime'] % 1000000) ~/ 10000, // 日
+              (voteData['endTime'] % 10000) ~/ 100, // 小时
+              voteData['endTime'] % 100 // 分钟
+              ),
+          singleOrMultipleChoice: voteData['singleOrMultipleChoice'] == 1,
+          );
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    endTime = DateTime.now();
   }
 
   @override
@@ -29,37 +73,25 @@ class _AddVotePageState extends State<AddVotePage> {
       appBar: AppBar(
         title: const Text('新增投票', style: TextStyle(color: Colors.black)),
         centerTitle: true, //標題置中
-        backgroundColor: Color(0xFF4A7DAB), // 這裡設置 AppBar 的顏色
+        backgroundColor: const Color(0xFF4A7DAB), // 這裡設置 AppBar 的顏色
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop(); // 返回上一个页面
           },
         ),
       ),
-      body: Stack(
-        children: [
-          // Background Image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/back.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          ListView(
-            padding: EdgeInsets.all(16.0),
-            children: [
-              TextField(
-                controller: questionController,
-                decoration: InputDecoration(
-                  labelText: '問題描述',
-                ),
-              ),
-              SizedBox(height: 16.0),
-              Text(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
+        child: Form(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              buildTitle(),
+              const SizedBox(height: 16.0),
+              const Text(
                 '投票選項',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Column(
                 children: options.asMap().entries.map((entry) {
@@ -74,7 +106,7 @@ class _AddVotePageState extends State<AddVotePage> {
                   );
                 }).toList(),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xFFCFE3F4), // 设置按钮的背景颜色
@@ -93,41 +125,8 @@ class _AddVotePageState extends State<AddVotePage> {
                 ),
                 onPressed: addOption,
               ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: '截止日期',
-                        hintText:
-                            '${_dateTime.year}/${_dateTime.month}/${_dateTime.day}',
-                        suffixIcon: IconButton(
-                          onPressed: _getDate,
-                          icon: Icon(Icons.calendar_today_outlined),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        hintText: _endTime,
-                        suffixIcon: IconButton(
-                          onPressed: () async {
-                            _getTime(isStartTime: true);
-                          },
-                          icon: Icon(Icons.access_time_rounded),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
+              buildDateTimePickers(),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: Text('一人多選'),
@@ -138,7 +137,7 @@ class _AddVotePageState extends State<AddVotePage> {
                   });
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xFFCFE3F4), // 设置按钮的背景颜色
@@ -155,9 +154,11 @@ class _AddVotePageState extends State<AddVotePage> {
                     fontWeight: FontWeight.w600, // 设置字体粗细
                   ),
                 ),
-                onPressed: () {
-                  String question = questionController.text;
-                  if (question.isNotEmpty) {
+                onPressed: 
+                // saveForm,
+                 () async {
+                  String voteName = questionController.text;
+                  if (voteName.isNotEmpty) {
                     List<String> updatedOptions =
                         options.where((option) => option.isNotEmpty).toList();
 
@@ -165,55 +166,198 @@ class _AddVotePageState extends State<AddVotePage> {
                       List<int> initialOptionVotes =
                           List.generate(updatedOptions.length, (index) => 0);
 
-                      Vote newVote = Vote.create(
-                        question: question,
-                        options: updatedOptions,
-                        selectedDate: _dateTime,
-                        isMultipleChoice: isChecked,
-                        optionVotes: initialOptionVotes,
+                      Vote vote = Vote(
+                        vID: 1,
+                        eID: 1,
+                        uID: '1',
+                        voteName: voteName,
+                        endTime: endTime,
+                        singleOrMultipleChoice: isChecked,
                       );
 
                       Provider.of<VoteProvider>(context, listen: false)
-                          .addVote(newVote);
+                          .addVote(vote);
                       Navigator.pop(context);
+                      final result = await APIservice.addVote(content: vote.toMap());
                     }
                   }
                 },
-              )
-            ],
-          ),
-        ],
+          )],
+          )),
       ),
     );
   }
 
-  Future<void> _getDate() async {
-    final DateTime? date = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 10),
+  //建立標題
+  Widget buildTitle(){
+    return Row(
+      children: [
+        const Text(
+          '名稱 ：',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: TextFormField(
+            style: const TextStyle(fontSize: 18),
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              hintText: '請輸入標題',
+            ),
+            onFieldSubmitted: (_) => {},
+            validator: (title) => title != null && title.isEmpty
+                ? 'Title can not be empty'
+                : null,
+            controller: questionController,
+          ),
+        ),
+      ],
     );
+  }
+  Widget buildDateTimePickers() => Column(
+    children: [
+      buildFrom(),
+    ],
+  );
+  Widget buildFrom() {
+    return buildHeader(
+      header: '截止時間',
+      child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: buildDropdownField(
+                text: Utils.toDate(endTime),
+                onClicked: () => pickFromDateTime(pickDate: true),
+              ),
+            ),
+            Expanded(
+              child: buildDropdownField(
+                text: Utils.toTime(endTime),
+                onClicked: () => pickFromDateTime(pickDate: false),
+              ),
+            )
+          ],
+        ),      
+    );
+  }
+  Widget buildDropdownField({
+    required String text,
+    required VoidCallback onClicked,
+  }) =>
+      ListTile(
+        title: Text(text),
+        trailing: const Icon(Icons.arrow_drop_down),
+        onTap: onClicked,
+      );
+  Widget buildHeader({
+    required String header,
+    required Widget child,
+  }) =>
+     Column(
+       crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$header：',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          child,
+        ],
+     );
 
-    if (date != null && date != _dateTime) {
-      setState(() {
-        _dateTime = date;
-      });
+  Future pickFromDateTime({required bool pickDate}) async {
+    final date = await pickDateTime(endTime, pickDate: pickDate);
+
+    if (date == null) return;
+    // 起始時間 > 結束時間
+    if (date.isAfter(endTime)) {
+      // 年月日都一樣 判斷時間
+      if (date.year == endTime.year &&
+          date.month == endTime.month &&
+          date.day == endTime.day) {
+        // 起始小時>結束小時
+        if (date.hour > endTime.hour) {
+          // 結束小時+1
+          endTime = DateTime(
+              date.year, date.month, date.day, date.hour + 1, date.minute);
+        }
+        // 只有分鐘不同
+        if (date.hour == endTime.hour) {
+          if (date.minute > endTime.minute) {
+            // 直接設跟起始一樣
+            endTime = DateTime(
+                date.year, date.month, date.day, date.hour, date.minute);
+          }
+        }
+      } else {
+        endTime = DateTime(
+            date.year, date.month, date.day, endTime.hour, endTime.minute);
+      }
+    }
+  }   
+  Future<DateTime?> pickDateTime(
+    DateTime initialDate, {
+      required bool pickDate,
+      DateTime? firstDate,
+    }) async {
+      if (pickDate) {
+        final date = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: firstDate ?? DateTime(2015, 8),
+          lastDate: DateTime(2101),
+        );
+        if (date == null) return null;
+        final time = Duration(
+        hours: initialDate.hour,
+        minutes: initialDate.minute,
+      );
+      return date.add(time);
+    } else {
+      final timeOfDay = await showTimePicker(
+          context: context, initialTime: TimeOfDay.fromDateTime(initialDate));
+      if (timeOfDay == null) return null;
+      final date =
+          DateTime(initialDate.year, initialDate.month, initialDate.day);
+      final time = Duration(hours: timeOfDay.hour, minutes: timeOfDay.minute);
+      return date.add(time);
     }
   }
-
-  Future<void> _getTime({required bool isStartTime}) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    if (pickedTime != null) {
-      DateTime tempDateTime = DateTime(_dateTime.year, _dateTime.month,
-          _dateTime.day, pickedTime.hour, pickedTime.minute);
-      setState(() {
-        if (isStartTime) _endTime = DateFormat('hh:mm a').format(tempDateTime);
-      });
+  Future saveForm() async {
+    final provider = Provider.of<VoteProvider>(context, listen: false);
+    // Provider.of<VoteProvider>(context, listen: false).addVote(newVote);Navigator.pop(context);
+    // await Sqflite.initDatabase(); //
+    // final isvalid = _formKey.currentState!.validate();
+    String uID = 'q';
+    int eID = 0;
+    // if (isvalid) {
+      final Vote vote = Vote(
+          eID: eID,
+          uID: uID,
+          voteName: questionController.text,
+          endTime: endTime,
+          singleOrMultipleChoice: isChecked, 
+          vID: null,
+          // votingOptionContent: options,
+          // optionVotes: optionVotes,
+          );
+      print(eID);
+      print(uID);
+      print(questionController.text);
+      print(endTime.microsecondsSinceEpoch);
+      print(isChecked);
+      // await Sqlite.insert(tableName: 'journey', insertData: vote.toMap());
+        final result = await APIservice.addVote(content: vote.toMap());
+        print('投票!!!!!!');
+        print(result[0]);
+        if (result[0]) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/MyBottomBar2',
+            ModalRoute.withName('/'),
+          );
+        } else {
+          print('$result 在 server 新增投票失敗');
+        }
     }
-  }
+  //}
 }

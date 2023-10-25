@@ -3,6 +3,7 @@
 // import 'package:create_event2/page/event_viewing_page.dart';
 // ignore_for_file: prefer_const_constructors, avoid_print
 
+import 'package:create_event2/model/vote.dart';
 import 'package:create_event2/provider/event_provider.dart';
 import 'package:create_event2/provider/vote_provider.dart';
 import 'package:flutter/material.dart';
@@ -104,9 +105,9 @@ class _MainPageState extends State<MainPage> {
   getCalendarDate() async {
     //await Sqlite.dropDatabase();
     // 從server抓使用者行事曆資料
-    var userID = {'uid': '5533'};
-    final result = await APIservice.selectAll(content: userID, uID: '5533');
-    print(result);
+    // final Vote name = Vote(eID: 1, uID: '1', voteName: '123', endTime: DateTime.now(), singleOrMultipleChoice: false);
+    // final result = await APIservice.addVote(content: name.toMap());
+    // print(result);
     await Sqlite.open; //開啟資料庫
     List? queryCalendarTable = await Sqlite.queryAll(tableName: 'journey');
     queryCalendarTable ??= [];

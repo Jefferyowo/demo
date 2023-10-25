@@ -20,8 +20,8 @@ class _SingleVoteState extends State<SingleVote> {
   @override
   void initState() {
     super.initState();
-    optionVotes =
-        List.from(widget.vote.optionVotes); // 使用widget.vote.optionVotes的初始值
+    // optionVotes =
+    //     List.from(widget.vote.optionVotes); // 使用widget.vote.optionVotes的初始值
   }
 
 // 在vote函数中更新Vote对象
@@ -41,12 +41,14 @@ class _SingleVoteState extends State<SingleVote> {
 
       // 创建一个新的Vote对象来更新当前的投票状态
       final updatedVote = Vote(
-        id: widget.vote.id,
-        question: widget.vote.question,
-        selectedDate: widget.vote.selectedDate,
-        isMultipleChoice: widget.vote.isMultipleChoice,
-        options: widget.vote.options,
-        optionVotes: optionVotes,
+        vID: widget.vote.vID,
+        eID: widget.vote.eID,
+        uID: widget.vote.uID,
+        voteName: widget.vote.voteName,
+        endTime: widget.vote.endTime,
+        singleOrMultipleChoice: widget.vote.singleOrMultipleChoice,
+        // votingOptionContent: widget.vote.votingOptionContent,
+        // optionVotes: optionVotes,
       );
 
       // 使用Provider来更新Vote对象
@@ -56,14 +58,14 @@ class _SingleVoteState extends State<SingleVote> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.vote.options.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('投票'),
-        ),
-        body: Center(child: Text('没有可用的投票选项')),
-      );
-    }
+    // if (widget.vote.votingOptionContent.isEmpty) {
+    //   return Scaffold(
+    //     appBar: AppBar(
+    //       title: Text('投票'),
+    //     ),
+    //     body: Center(child: Text('没有可用的投票选项')),
+    //   );
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -87,20 +89,20 @@ class _SingleVoteState extends State<SingleVote> {
               Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Text(
-                  widget.vote.question,
+                  widget.vote.voteName,
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: widget.vote.options.length,
+                  // itemCount: widget.vote.votingOptionContent.length,
                   itemBuilder: (context, index) {
                     return RadioListTile(
-                      title: Text(
-                        '${widget.vote.options[index]} (${optionVotes[index]})',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
+                      // title: Text(
+                      //   '${widget.vote.votingOptionContent[index]} (${optionVotes[index]})',
+                      //   style: TextStyle(
+                      //       fontSize: 20, fontWeight: FontWeight.bold),
+                      // ),
                       value: index,
                       groupValue: selectedOptionIndex,
                       onChanged: (int? value) {

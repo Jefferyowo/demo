@@ -23,12 +23,12 @@ class VoteList extends StatelessWidget {
             itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
               final vote = voteProvider.votes[index];
-              final totalVotes =
-                  vote.optionVotes.reduce((a, b) => a + b); // 计算投票总数
+              // final totalVotes =
+              //     vote.optionVotes.reduce((a, b) => a + b); // 计算投票总数
 
               return ListTile(
-                title: Text(vote.question),
-                subtitle: Text('投票總數: $totalVotes'), // 显示投票总数
+                title: Text(vote.voteName),
+                // subtitle: Text('投票總數: $totalVotes'), // 显示投票总数
                 onTap: () {
                   // 处理点击事件，比如导航到投票详情页面
                   Navigator.push(

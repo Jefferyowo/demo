@@ -30,6 +30,6 @@ class VoteProvider extends ChangeNotifier {
   }
 
   Vote? getVoteById(String id) {
-    return _votes.firstWhere((vote) => vote.id == id);
+    return _votes.firstWhere((vote) => vote.vID == id);
   }
 }

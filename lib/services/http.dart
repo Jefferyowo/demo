@@ -2,7 +2,6 @@ import 'package:create_event2/model/event.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:create_event2/model/event.dart';
 import 'package:create_event2/services/sqlite.dart';
 
 class APIservice {
@@ -49,6 +48,44 @@ class APIservice {
       {required Map<String, dynamic> content, required int jID}) async {
     String url =
         "http://163.22.17.145:3000/api/journey/deleteJourney/$jID"; //api後接檔案名稱
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(content),
+    ); // 根據使用者的token新增資料
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      print('刪除行程成功');
+      return [true, responseString];
+    } else {
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+  // 新增投票
+  static Future<List<dynamic>> addVote(
+      {required Map<String, dynamic> content}) async {
+    final url =
+        Uri.parse("http://163.22.17.145:3000/api/vote/insertVote/");
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(content),
+    );
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      return [false, response];
+    }
+  }
+
+  // 刪除投票
+  static Future<List<dynamic>> deleteVote(
+      {required Map<String, dynamic> content, required int vID}) async {
+    String url =
+        "http://163.22.17.145:3000/api/vote/deleteVote/$vID"; //api後接檔案名稱
     final response = await http.delete(
       Uri.parse(url),
       headers: <String, String>{'Content-Type': 'application/json'},

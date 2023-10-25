@@ -113,11 +113,11 @@ class VotePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          vote.question,
+                          vote.voteName,
                           style: TextStyle(fontSize: 20),
                         ),
                         Text(
-                          '截止時間 : ${DateFormat('yyyy/MM/dd HH:mm').format(vote.selectedDate)}',
+                          '截止時間 : ${DateFormat('yyyy/MM/dd HH:mm').format(vote.endTime)}',
                           style: TextStyle(fontSize: 16),
                         ),
                       ],
@@ -137,7 +137,7 @@ class VotePage extends StatelessWidget {
                                     BorderRadius.circular(30), // 设置按钮的圆角
                               ),
                             ),
-                            child: Text(
+                            child: const Text(
                               "投票",
                               style: TextStyle(
                                 color: Colors.black, // 设置文本颜色
@@ -147,7 +147,7 @@ class VotePage extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              if (vote.isMultipleChoice) {
+                              if (vote.singleOrMultipleChoice) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
