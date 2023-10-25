@@ -24,8 +24,6 @@ class _AddVotePageState extends State<AddVotePage> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
-  // DateTime _dateTime = DateTime.now();
-  // String _endTime = DateFormat('hh:mm a').format(DateTime.now()).toString();
   bool isChecked = false;
   List<String> options = [''];
   List<int> optionVotes = [];
@@ -127,6 +125,7 @@ class _AddVotePageState extends State<AddVotePage> {
               ),
               const SizedBox(height: 16.0),
               buildDateTimePickers(),
+              const SizedBox(height: 16.0),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
                 title: Text('一人多選'),
@@ -154,9 +153,7 @@ class _AddVotePageState extends State<AddVotePage> {
                     fontWeight: FontWeight.w600, // 设置字体粗细
                   ),
                 ),
-                onPressed: 
-                // saveForm,
-                 () async {
+                onPressed: () async {
                   String voteName = questionController.text;
                   if (voteName.isNotEmpty) {
                     List<String> updatedOptions =
@@ -322,42 +319,42 @@ class _AddVotePageState extends State<AddVotePage> {
       return date.add(time);
     }
   }
-  Future saveForm() async {
-    final provider = Provider.of<VoteProvider>(context, listen: false);
-    // Provider.of<VoteProvider>(context, listen: false).addVote(newVote);Navigator.pop(context);
-    // await Sqflite.initDatabase(); //
-    // final isvalid = _formKey.currentState!.validate();
-    String uID = 'q';
-    int eID = 0;
-    // if (isvalid) {
-      final Vote vote = Vote(
-          eID: eID,
-          uID: uID,
-          voteName: questionController.text,
-          endTime: endTime,
-          singleOrMultipleChoice: isChecked, 
-          vID: null,
-          // votingOptionContent: options,
-          // optionVotes: optionVotes,
-          );
-      print(eID);
-      print(uID);
-      print(questionController.text);
-      print(endTime.microsecondsSinceEpoch);
-      print(isChecked);
-      // await Sqlite.insert(tableName: 'journey', insertData: vote.toMap());
-        final result = await APIservice.addVote(content: vote.toMap());
-        print('投票!!!!!!');
-        print(result[0]);
-        if (result[0]) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/MyBottomBar2',
-            ModalRoute.withName('/'),
-          );
-        } else {
-          print('$result 在 server 新增投票失敗');
-        }
-    }
-  //}
+  // Future saveForm() async {
+  //   final provider = Provider.of<VoteProvider>(context, listen: false);
+  //   // Provider.of<VoteProvider>(context, listen: false).addVote(newVote);Navigator.pop(context);
+  //   // await Sqflite.initDatabase(); //
+  //   // final isvalid = _formKey.currentState!.validate();
+  //   String uID = 'q';
+  //   int eID = 0;
+  //   // if (isvalid) {
+  //     final Vote vote = Vote(
+  //         eID: eID,
+  //         uID: uID,
+  //         voteName: questionController.text,
+  //         endTime: endTime,
+  //         singleOrMultipleChoice: isChecked, 
+  //         vID: null,
+  //         // votingOptionContent: options,
+  //         // optionVotes: optionVotes,
+  //         );
+  //     print(eID);
+  //     print(uID);
+  //     print(questionController.text);
+  //     print(endTime.microsecondsSinceEpoch);
+  //     print(isChecked);
+  //     // await Sqlite.insert(tableName: 'journey', insertData: vote.toMap());
+  //       final result = await APIservice.addVote(content: vote.toMap());
+  //       print('投票!!!!!!');
+  //       print(result[0]);
+  //       if (result[0]) {
+  //         Navigator.pushNamedAndRemoveUntil(
+  //           context,
+  //           '/MyBottomBar2',
+  //           ModalRoute.withName('/'),
+  //         );
+  //       } else {
+  //         print('$result 在 server 新增投票失敗');
+  //       }
+  //   }
+  // //}
 }
