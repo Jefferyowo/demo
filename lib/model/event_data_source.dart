@@ -26,6 +26,6 @@ class EventDateSource extends CalendarDataSource {
   @override
   Color getColor(int index) => getEvent(index).color;
 
-  @override
-  bool isAllDay(int index) => getEvent(index).isAllDay;
+  // @override
+  // bool isAllDay(int index) => getEvent(index).isAllDay;
 }

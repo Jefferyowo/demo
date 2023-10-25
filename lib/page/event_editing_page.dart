@@ -31,7 +31,8 @@ class EventEditingPage extends StatefulWidget {
 class _EventEditingPageState extends State<EventEditingPage> {
   final _formKey = GlobalKey<FormState>();
 
-  int jID = 0;
+  late int jID;
+  late String uID;
   final titleController = TextEditingController();
   late DateTime fromDate;
   late DateTime toDate;
@@ -66,6 +67,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
     } else {
       // 編輯
       jID = widget.event!.jID!;
+      uID = widget.event!.uID!;
       print('編輯印出jid:$jID');
       fetchEventData();
     }
@@ -101,6 +103,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
       Map<String, dynamic> eventData = queryResult.first;
       return Event(
           jID: eventData['jID'],
+          uID: eventData['uID'],
           journeyName: eventData['journeyName'],
           journeyStartTime: DateTime(
               eventData['journeyStartTime'] ~/ 100000000, // 年
@@ -659,10 +662,10 @@ class _EventEditingPageState extends State<EventEditingPage> {
   Future saveForm() async {
     await Sqlite.initDatabase();
     final isvalid = _formKey.currentState!.validate();
-    String uID = 'q';
     // int uID = 1;
     if (isvalid) {
       final Event event = Event(
+          jID: jID,
           uID: uID,
           journeyName: titleController.text,
           location: locationController.text,
@@ -683,8 +686,8 @@ class _EventEditingPageState extends State<EventEditingPage> {
             updateData: event.toMap(),
             tableIdName: 'jid',
             updateID: jID);
-        final result =
-            await APIservice.editJourney(content: event.toMap(), jID: 112);
+        final result = await APIservice.editJourney(
+            content: event.toMap(), jID: event.jID!);
         // event.jid!
         print(result[0]);
 
@@ -710,6 +713,11 @@ class _EventEditingPageState extends State<EventEditingPage> {
         } else {
           print('$result 在 server 新增活動失敗');
         }
+        // Navigator.pushNamedAndRemoveUntil(
+        //   context,
+        //   '/MyBottomBar2',
+        //   ModalRoute.withName('/'),
+        // );
       }
     }
   }

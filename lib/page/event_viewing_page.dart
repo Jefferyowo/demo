@@ -231,7 +231,7 @@ class _EventViewingPageState extends State<EventViewingPage> {
             },
             onConfirm: () async {
               final List result = await APIservice.deleteJourney(
-                  content: _currentEvent.toMap(), jID: 112);
+                  content: _currentEvent.toMap(), jID: _currentEvent.jID!);
               print(result[0]);
               if (result[0]) {
                 var result = await Sqlite.deleteJourney(
