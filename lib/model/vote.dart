@@ -11,8 +11,6 @@ class Vote {
   final bool singleOrMultipleChoice;
 
   // String id;
-  // final List<String> votingOptionContent;
-  // final List<int> optionVotes;
 
   // 构造函数，用于初始化对象
   const Vote({
@@ -61,9 +59,30 @@ class Vote {
           endTime.hour * 100 +
           endTime.minute, // 將 DateTime 轉換為 ISO 8601 字串
       'singleOrMultipleChoice': singleOrMultipleChoice? 1 : 0,
-      // 'votingOptionContent': votingOptionContent,
-      // 'optionVotes': optionVotes,//資料庫名稱?
-      
+    };
+  }
+}
+
+class VoteOption {
+  final int? oID;
+  final int? vID;
+  final List<String> votingOptionContent;
+  final List<int> optionVotes;
+
+  const VoteOption({
+    required this.oID,
+    required this.vID,
+    required this.votingOptionContent,
+    required this.optionVotes,
+  });
+
+  get start => null;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'vID': vID,
+      'votingOptionContent': votingOptionContent,
+      //'optionVotes': optionVotes,
     };
   }
 }

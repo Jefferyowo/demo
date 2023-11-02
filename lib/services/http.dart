@@ -81,6 +81,26 @@ class APIservice {
     }
   }
 
+  // 新增投票選項
+  static Future<List<dynamic>> addVoteOptions(
+      {required Map<String, dynamic> content}) async {
+    final url =
+        Uri.parse("http://163.22.17.145:3000/api/votingOption/insertVotingOption/");
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(content),
+    );
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return [true, responseString];
+    } else {
+      return [false, response];
+    }
+  }
+
+
   // 刪除投票
   static Future<List<dynamic>> deleteVote(
       {required Map<String, dynamic> content, required int vID}) async {
@@ -100,6 +120,27 @@ class APIservice {
       return [false, responseString];
     }
   }
+
+  // 刪除投票選項
+  static Future<List<dynamic>> deleteVoteOptions(
+      {required Map<String, dynamic> content, required int vID}) async {
+    String url =
+        "http://163.22.17.145:3000/api/vote/deleteVote/$vID"; //api後接檔案名稱
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      body: jsonEncode(content),
+    ); // 根據使用者的token新增資料
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      print('刪除行程成功');
+      return [true, responseString];
+    } else {
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+  
   // 抓全部資料route.get
 
   // 抓使用者行事曆資料

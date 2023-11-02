@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, avoid_print
 // add_vote_page.dart
 
 import 'package:create_event2/utils.dart';
@@ -25,14 +26,17 @@ class _AddVotePageState extends State<AddVotePage> {
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
   bool isChecked = false;
-  List<String> options = [''];
+  List<String> options = ['']; //['a']
+  //options.add(B選項)
+  //['a','b']
   List<int> optionVotes = [];
 
   void addOption() {
-    setState(() {
-      options.add('');
-    });
-  }
+  setState(() {
+    options.add('');
+  });
+}
+
 
   Future<Vote?> getvoteDataFromDatabase(int vid) async {
     List<Map<String, dynamic>>? queryResult = await Sqlite.queryRow(
@@ -41,19 +45,19 @@ class _AddVotePageState extends State<AddVotePage> {
     if (queryResult != null && queryResult.isNotEmpty) {
       Map<String, dynamic> voteData = queryResult.first;
       return Vote(
-          vID: voteData['vID'],
-          eID: voteData['eID'],
-          uID: voteData['uID'],
-          voteName: voteData['voteName'],
-          endTime: DateTime(
-              voteData['endTime'] ~/ 100000000, // 年
-              (voteData['endTime'] % 100000000) ~/ 1000000, // 月
-              (voteData['endTime'] % 1000000) ~/ 10000, // 日
-              (voteData['endTime'] % 10000) ~/ 100, // 小时
-              voteData['endTime'] % 100 // 分钟
-              ),
-          singleOrMultipleChoice: voteData['singleOrMultipleChoice'] == 1,
-          );
+        vID: voteData['vID'],
+        eID: voteData['eID'],
+        uID: voteData['uID'],
+        voteName: voteData['voteName'],
+        endTime: DateTime(
+            voteData['endTime'] ~/ 100000000, // 年
+            (voteData['endTime'] % 100000000) ~/ 1000000, // 月
+            (voteData['endTime'] % 1000000) ~/ 10000, // 日
+            (voteData['endTime'] % 10000) ~/ 100, // 小时
+            voteData['endTime'] % 100 // 分钟
+            ),
+        singleOrMultipleChoice: voteData['singleOrMultipleChoice'] == 1,
+      );
     } else {
       return null;
     }
@@ -82,111 +86,45 @@ class _AddVotePageState extends State<AddVotePage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Form(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              buildTitle(),
-              const SizedBox(height: 16.0),
-              const Text(
-                '投票選項',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Column(
-                children: options.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  return TextFormField(
-                    onChanged: (value) {
-                      options[index] = value;
-                    },
-                    decoration: InputDecoration(
-                      labelText: '選項 ${index + 1}',
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFCFE3F4), // 设置按钮的背景颜色
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 设置按钮的圆角
-                  ),
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            buildTitle(),
+            const SizedBox(height: 16.0),
+            buildOptions(),
+            const SizedBox(height: 16.0),
+            buildButtonAdd(),
+            const SizedBox(height: 16.0),
+            buildDateTimePickers(),
+            const SizedBox(height: 16.0),
+            buildCheckBox(),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: const Color(0xFFCFE3F4), // 设置按钮的背景颜色
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30), // 设置按钮的圆角
                 ),
-                child: Text(
-                  "新增選項",
-                  style: TextStyle(
-                    color: Colors.black, // 设置文本颜色
-                    fontSize: 15, // 设置字体大小
-                    fontFamily: 'DFKai-SB', // 设置字体
-                    fontWeight: FontWeight.w600, // 设置字体粗细
-                  ),
-                ),
-                onPressed: addOption,
               ),
-              const SizedBox(height: 16.0),
-              buildDateTimePickers(),
-              const SizedBox(height: 16.0),
-              CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text('一人多選'),
-                value: isChecked,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isChecked = value ?? false;
-                  });
-                },
+              child: Text(
+                "送出投票",
+                style: TextStyle(
+                  color: Colors.black, // 设置文本颜色
+                  fontSize: 15, // 设置字体大小
+                  fontFamily: 'DFKai-SB', // 设置字体
+                  fontWeight: FontWeight.w600, // 设置字体粗细
+                ),
               ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFCFE3F4), // 设置按钮的背景颜色
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 设置按钮的圆角
-                  ),
-                ),
-                child: Text(
-                  "送出投票",
-                  style: TextStyle(
-                    color: Colors.black, // 设置文本颜色
-                    fontSize: 15, // 设置字体大小
-                    fontFamily: 'DFKai-SB', // 设置字体
-                    fontWeight: FontWeight.w600, // 设置字体粗细
-                  ),
-                ),
-                onPressed: () async {
-                  String voteName = questionController.text;
-                  if (voteName.isNotEmpty) {
-                    List<String> updatedOptions =
-                        options.where((option) => option.isNotEmpty).toList();
-
-                    if (updatedOptions.isNotEmpty) {
-                      List<int> initialOptionVotes =
-                          List.generate(updatedOptions.length, (index) => 0);
-
-                      Vote vote = Vote(
-                        vID: 1,
-                        eID: 1,
-                        uID: '1',
-                        voteName: voteName,
-                        endTime: endTime,
-                        singleOrMultipleChoice: isChecked,
-                      );
-
-                      Provider.of<VoteProvider>(context, listen: false)
-                          .addVote(vote);
-                      Navigator.pop(context);
-                      final result = await APIservice.addVote(content: vote.toMap());
-                    }
-                  }
-                },
-          )],
-          )),
+              onPressed: saveForm,
+            )
+          ],
+        )),
       ),
     );
   }
 
   //建立標題
-  Widget buildTitle(){
+  Widget buildTitle() {
     return Row(
       children: [
         const Text(
@@ -210,33 +148,115 @@ class _AddVotePageState extends State<AddVotePage> {
       ],
     );
   }
+
+  //建立投票選項
+  Widget buildOptions() {
+    return Column(
+      children: [
+        const Text(
+          '投票選項 :',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Column(
+          children: options.asMap().entries.map((entry) {
+            int index = entry.key;
+            return Row(
+              children: [
+                Expanded(
+                    child: TextFormField(
+                  onChanged: (value) {
+                    options[index] = value;
+                  },
+                  decoration: InputDecoration(
+                    labelText: '選項 ${index + 1}',
+                  ),
+                )),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      options.removeAt(index); // 移除选项
+                    });
+                  },
+                  icon: const Icon(Icons.cancel),
+                )
+              ],
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget buildButtonAdd() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: Color(0xFFCFE3F4), // 设置按钮的背景颜色
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30), // 设置按钮的圆角
+        ),
+      ),
+      child: Text(
+        "新增選項",
+        style: TextStyle(
+          color: Colors.black, // 设置文本颜色
+          fontSize: 15, // 设置字体大小
+          fontFamily: 'DFKai-SB', // 设置字体
+          fontWeight: FontWeight.w600, // 设置字体粗细
+        ),
+      ),
+      onPressed: addOption,
+    );
+  }
+
+  // 建立是否多選的選項
+  Widget buildCheckBox() {
+    return Row(
+      children: [
+        Expanded(
+          child: CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('一人多選'),
+            value: isChecked,
+            onChanged: (bool? value) {
+              setState(() {
+                isChecked = value ?? false;
+              });
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  // 建立結束時間
   Widget buildDateTimePickers() => Column(
-    children: [
-      buildFrom(),
-    ],
-  );
+        children: [
+          buildFrom(),
+        ],
+      );
   Widget buildFrom() {
     return buildHeader(
       header: '截止時間',
       child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: buildDropdownField(
-                text: Utils.toDate(endTime),
-                onClicked: () => pickFromDateTime(pickDate: true),
-              ),
+        children: [
+          Expanded(
+            flex: 2,
+            child: buildDropdownField(
+              text: Utils.toDate(endTime),
+              onClicked: () => pickFromDateTime(pickDate: true),
             ),
-            Expanded(
-              child: buildDropdownField(
-                text: Utils.toTime(endTime),
-                onClicked: () => pickFromDateTime(pickDate: false),
-              ),
-            )
-          ],
-        ),      
+          ),
+          Expanded(
+            child: buildDropdownField(
+              text: Utils.toTime(endTime),
+              onClicked: () => pickFromDateTime(pickDate: false),
+            ),
+          )
+        ],
+      ),
     );
   }
+
   Widget buildDropdownField({
     required String text,
     required VoidCallback onClicked,
@@ -250,8 +270,8 @@ class _AddVotePageState extends State<AddVotePage> {
     required String header,
     required Widget child,
   }) =>
-     Column(
-       crossAxisAlignment: CrossAxisAlignment.start,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '$header：',
@@ -259,7 +279,7 @@ class _AddVotePageState extends State<AddVotePage> {
           ),
           child,
         ],
-     );
+      );
 
   Future pickFromDateTime({required bool pickDate}) async {
     final date = await pickDateTime(endTime, pickDate: pickDate);
@@ -289,22 +309,26 @@ class _AddVotePageState extends State<AddVotePage> {
         endTime = DateTime(
             date.year, date.month, date.day, endTime.hour, endTime.minute);
       }
+      setState(() {
+        endTime = date;
+      });
     }
-  }   
+  }
+
   Future<DateTime?> pickDateTime(
     DateTime initialDate, {
-      required bool pickDate,
-      DateTime? firstDate,
-    }) async {
-      if (pickDate) {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: initialDate,
-          firstDate: firstDate ?? DateTime(2015, 8),
-          lastDate: DateTime(2101),
-        );
-        if (date == null) return null;
-        final time = Duration(
+    required bool pickDate,
+    DateTime? firstDate,
+  }) async {
+    if (pickDate) {
+      final date = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: firstDate ?? DateTime(2015, 8),
+        lastDate: DateTime(2101),
+      );
+      if (date == null) return null;
+      final time = Duration(
         hours: initialDate.hour,
         minutes: initialDate.minute,
       );
@@ -319,42 +343,45 @@ class _AddVotePageState extends State<AddVotePage> {
       return date.add(time);
     }
   }
-  // Future saveForm() async {
-  //   final provider = Provider.of<VoteProvider>(context, listen: false);
-  //   // Provider.of<VoteProvider>(context, listen: false).addVote(newVote);Navigator.pop(context);
-  //   // await Sqflite.initDatabase(); //
-  //   // final isvalid = _formKey.currentState!.validate();
-  //   String uID = 'q';
-  //   int eID = 0;
-  //   // if (isvalid) {
-  //     final Vote vote = Vote(
-  //         eID: eID,
-  //         uID: uID,
-  //         voteName: questionController.text,
-  //         endTime: endTime,
-  //         singleOrMultipleChoice: isChecked, 
-  //         vID: null,
-  //         // votingOptionContent: options,
-  //         // optionVotes: optionVotes,
-  //         );
-  //     print(eID);
-  //     print(uID);
-  //     print(questionController.text);
-  //     print(endTime.microsecondsSinceEpoch);
-  //     print(isChecked);
-  //     // await Sqlite.insert(tableName: 'journey', insertData: vote.toMap());
-  //       final result = await APIservice.addVote(content: vote.toMap());
-  //       print('投票!!!!!!');
-  //       print(result[0]);
-  //       if (result[0]) {
-  //         Navigator.pushNamedAndRemoveUntil(
-  //           context,
-  //           '/MyBottomBar2',
-  //           ModalRoute.withName('/'),
-  //         );
-  //       } else {
-  //         print('$result 在 server 新增投票失敗');
-  //       }
-  //   }
-  // //}
+
+  // 儲存
+  Future saveForm() async {
+    String voteName = questionController.text;
+    if (voteName.isNotEmpty) {
+      List<String> updatedOptions =
+          options.where((option) => option.isNotEmpty).toList();
+
+      if (updatedOptions.isNotEmpty) {
+        List<int> initialOptionVotes =
+            List.generate(updatedOptions.length, (index) => 0);
+
+        Vote vote = Vote(
+          vID: 1,
+          eID: 1,
+          uID: '1',
+          voteName: voteName,
+          endTime: endTime,
+          singleOrMultipleChoice: isChecked,
+        );
+
+        VoteOption voteOption = VoteOption(
+          oID: 1,
+          vID: 1,
+          votingOptionContent: options, //a
+          optionVotes: optionVotes
+        );
+        setState(() {
+          options.add;
+          print(options);
+        });
+
+        Provider.of<VoteProvider>(context, listen: false).addVote(vote);
+        Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
+
+        Navigator.pop(context);
+        final result = await APIservice.addVote(content: vote.toMap());
+        final result1 = await APIservice.addVoteOptions(content: voteOption.toMap());
+      }
+    }
+  }
 }

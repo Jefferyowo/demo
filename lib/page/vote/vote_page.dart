@@ -1,14 +1,40 @@
+
 import 'package:create_event2/page/vote/add_vote_page.dart';
 import 'package:create_event2/page/vote/vote_multiple.dart';
 import 'package:create_event2/page/vote/vote_single.dart';
 import 'package:create_event2/provider/vote_provider.dart';
 import 'package:create_event2/page/vote/voteList.dart';
+import 'package:create_event2/services/http.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../model/vote.dart';
 
-class VotePage extends StatelessWidget {
+class VotePage extends StatefulWidget {
+  // final Vote vote;
+
+  // const VotePage({
+  //   Key? key,
+  //   required this.vote,
+  // }) : super(key: key);
+
+  
+  @override
+  State<VotePage> createState() => _VotePageState();
+}
+
+class _VotePageState extends State<VotePage> {
+  late Vote _currentVote;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 確保索引有效，然後初始化 _currentVote
+    // if (widget.vote != null && widget.vote >= 0 && widget.vote < voteProvider.votes.length) {
+    //   _currentVote = voteProvider.votes[widget.vote];
+    // }
+  }
   Future<void> _confirmDeleteDialog(BuildContext context, int index) async {
     final voteProvider = Provider.of<VoteProvider>(context, listen: false);
 
@@ -21,7 +47,35 @@ class VotePage extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               child: Text('是'),
-              onPressed: () {
+              onPressed: () async {
+                // final List result = await APIservice.deleteVote(content: _currentVote.toMap(), vID: 59);
+                // final List result1 = await APIservice.deleteVoteOptions(content: _currentVote.toMap(), vID: 1);
+              //   print(result[0]);
+              //   //print(result1[0]);
+              //   if (result[0]) {
+              //   // var result = await Sqlite.deleteJourney(
+              //   //   tableName: 'journey',
+              //   //   tableIdName: 'jid',
+              //   //   deleteId: _currentEvent.jID ?? 0,
+              //   // );
+              //   Navigator.pushNamedAndRemoveUntil(
+              //     context,
+              //     '/MyBottomBar2',
+              //     ModalRoute.withName('/'),
+              //   );
+              // } else {
+              //   print('在server刪除行程失敗');
+              // }
+              // if (result1[0]) {
+              //   Navigator.pushNamedAndRemoveUntil(
+              //     context,
+              //     '/MyBottomBar2',
+              //     ModalRoute.withName('/'),
+              //   );
+              // } else {
+              //   print('在server刪除行程失敗');
+              // }
+
                 voteProvider.deleteVote(index);
                 Navigator.of(context).pop();
               },
@@ -84,6 +138,7 @@ class VotePage extends StatelessWidget {
             itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
               final vote = voteProvider.votes[index];
+              final voteOption = voteProvider.voteoptions[index];
 
               return Container(
                 margin: EdgeInsets.all(20.0),
@@ -152,7 +207,7 @@ class VotePage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        VoteCheckbox(vote: vote),
+                                        VoteCheckbox(vote: vote, voteOption: voteOption,),
                                   ),
                                 );
                               } else {
@@ -160,7 +215,7 @@ class VotePage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        SingleVote(vote: vote),
+                                        SingleVote(vote: vote, voteOption: voteOption,),
                                   ),
                                 );
                               }
