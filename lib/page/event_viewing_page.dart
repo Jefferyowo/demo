@@ -219,13 +219,13 @@ class _EventViewingPageState extends State<EventViewingPage> {
             titleStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             middleText: "是否刪除此行程?",
             middleTextStyle: TextStyle(fontSize: 18),
-            backgroundColor: Colors.pinkAccent,
+            backgroundColor: const Color.fromARGB(255, 141, 154, 227),
             radius: 30,
             textCancel: "取消",
             cancelTextColor: Colors.white,
             textConfirm: "確認",
             confirmTextColor: Colors.white,
-            buttonColor: Colors.blueGrey,
+            buttonColor: const Color.fromARGB(255, 109, 156, 179),
             onCancel: () {
               Navigator.of(context).pop();
             },

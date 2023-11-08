@@ -6,6 +6,8 @@ import 'package:create_event2/main.dart';
 import 'package:create_event2/page/event_editing_page.dart';
 import 'package:create_event2/page/search_page.dart';
 
+import 'model/vote.dart';
+
 class MyBottomBar extends StatefulWidget {
   final int i; // 點選哪個buttom
 
@@ -22,6 +24,19 @@ class _MyBottomBarState extends State<MyBottomBar> {
   int _selectedIndex = 2;
   bool _showBottomNavBar = true;
 
+  Vote? someVote;  // Declare a nullable Vote variable
+  
+  static get _currentVote => null;
+
+// Check if someVote is not null before using it
+// if (someVote != null) {
+//   // Use someVote
+//   // Example: print(someVote.property); 
+// } else {
+//   // Handle the case where someVote is null
+// }
+
+
   final List<Widget> _screens = [
     ChatRoomPage(), //0
     EventEditingPage(
@@ -32,6 +47,10 @@ class _MyBottomBarState extends State<MyBottomBar> {
     SearchPage(), //3
     Friend() //4
   ];
+  
+  
+  
+  
   // 點選buttom
   void _onItemTapped(int idx) {
     setState(() {

@@ -3,6 +3,10 @@ import 'package:create_event2/page/vote/vote_page.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoomPage extends StatefulWidget {
+
+  const ChatRoomPage({
+    Key? key,
+  }) : super(key: key);
   
   @override
   _ChatRoomPageState createState() => _ChatRoomPageState();
@@ -11,7 +15,13 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<String> _messages = [];
-  // late Vote vote; // 宣告並初始化 vote 變數
+  late Vote _currentVote;
+
+  @override
+  void initState() {
+    super.initState();
+    //_currentVote = widget.vote;
+  }
 
 
   void _sendMessage(String message) {

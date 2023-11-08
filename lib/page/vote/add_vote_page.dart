@@ -34,6 +34,7 @@ class _AddVotePageState extends State<AddVotePage> {
   void addOption() {
   setState(() {
     options.add('');
+    print(options);
   });
 }
 
@@ -366,21 +367,29 @@ class _AddVotePageState extends State<AddVotePage> {
 
         VoteOption voteOption = VoteOption(
           oID: 1,
-          vID: 1,
+          vID: 2,
           votingOptionContent: options, //a
           optionVotes: optionVotes
         );
-        setState(() {
-          options.add;
-          print(options);
-        });
-
-        Provider.of<VoteProvider>(context, listen: false).addVote(vote);
+        for (var element in options) {
+          VoteOption voteOptiontest = VoteOption(
+          oID: 1,
+          vID: 2,
+          votingOptionContent: [element], //a
+          optionVotes: optionVotes
+        );
+        
+        final result1 = await APIservice.addVoteOptions(content: voteOptiontest.toMap());
+        }
         Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
 
-        Navigator.pop(context);
+        Provider.of<VoteProvider>(context, listen: false).addVote(vote);
+      //  Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
+
+        
         final result = await APIservice.addVote(content: vote.toMap());
-        final result1 = await APIservice.addVoteOptions(content: voteOption.toMap());
+        // final result1 = await APIservice.addVoteOptions(content: voteOption.toMap());
+        Navigator.pop(context);
       }
     }
   }

@@ -103,17 +103,16 @@ class APIservice {
 
   // 刪除投票
   static Future<List<dynamic>> deleteVote(
-      {required Map<String, dynamic> content, required int vID}) async {
+      { required int vID}) async {
     String url =
         "http://163.22.17.145:3000/api/vote/deleteVote/$vID"; //api後接檔案名稱
     final response = await http.delete(
       Uri.parse(url),
       headers: <String, String>{'Content-Type': 'application/json'},
-      body: jsonEncode(content),
     ); // 根據使用者的token新增資料
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print('刪除行程成功');
+      print('刪除投票成功');
       return [true, responseString];
     } else {
       print(responseString);
@@ -125,7 +124,7 @@ class APIservice {
   static Future<List<dynamic>> deleteVoteOptions(
       {required Map<String, dynamic> content, required int vID}) async {
     String url =
-        "http://163.22.17.145:3000/api/vote/deleteVote/$vID"; //api後接檔案名稱
+        "http://163.22.17.145:3000/api/votingOption/deleteVotingOption/$vID"; //api後接檔案名稱
     final response = await http.delete(
       Uri.parse(url),
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -133,7 +132,7 @@ class APIservice {
     ); // 根據使用者的token新增資料
     final responseString = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      print('刪除行程成功');
+      print('刪除投票選項成功');
       return [true, responseString];
     } else {
       print(responseString);

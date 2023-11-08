@@ -11,12 +11,10 @@ import 'package:provider/provider.dart';
 import '../../model/vote.dart';
 
 class VotePage extends StatefulWidget {
-  // final Vote vote;
 
-  // const VotePage({
-  //   Key? key,
-  //   required this.vote,
-  // }) : super(key: key);
+  const VotePage({
+    Key? key,
+  }) : super(key: key);
 
   
   @override
@@ -29,7 +27,7 @@ class _VotePageState extends State<VotePage> {
   @override
   void initState() {
     super.initState();
-
+    // _currentVote = widget.vote;
     // 確保索引有效，然後初始化 _currentVote
     // if (widget.vote != null && widget.vote >= 0 && widget.vote < voteProvider.votes.length) {
     //   _currentVote = voteProvider.votes[widget.vote];
@@ -48,24 +46,23 @@ class _VotePageState extends State<VotePage> {
             TextButton(
               child: Text('是'),
               onPressed: () async {
-                // final List result = await APIservice.deleteVote(content: _currentVote.toMap(), vID: 59);
+                final List result = await APIservice.deleteVote( vID: 74);
                 // final List result1 = await APIservice.deleteVoteOptions(content: _currentVote.toMap(), vID: 1);
-              //   print(result[0]);
-              //   //print(result1[0]);
-              //   if (result[0]) {
-              //   // var result = await Sqlite.deleteJourney(
-              //   //   tableName: 'journey',
-              //   //   tableIdName: 'jid',
-              //   //   deleteId: _currentEvent.jID ?? 0,
-              //   // );
-              //   Navigator.pushNamedAndRemoveUntil(
-              //     context,
-              //     '/MyBottomBar2',
-              //     ModalRoute.withName('/'),
-              //   );
-              // } else {
-              //   print('在server刪除行程失敗');
-              // }
+                print(result[0]);
+                if (result[0]) {
+                // var result = await Sqlite.deleteJourney(
+                //   tableName: 'journey',
+                //   tableIdName: 'jid',
+                //   deleteId: _currentEvent.jID ?? 0,
+                // );
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/MyBottomBar2',
+                  ModalRoute.withName('/'),
+                );
+              } else {
+                print('在server刪除投票失敗');
+              }
               // if (result1[0]) {
               //   Navigator.pushNamedAndRemoveUntil(
               //     context,
@@ -73,7 +70,7 @@ class _VotePageState extends State<VotePage> {
               //     ModalRoute.withName('/'),
               //   );
               // } else {
-              //   print('在server刪除行程失敗');
+              //   print('在server刪除投票選項失敗');
               // }
 
                 voteProvider.deleteVote(index);
