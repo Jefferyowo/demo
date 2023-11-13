@@ -1,6 +1,9 @@
 import 'package:create_event2/page/vote/vote_result.dart';
 import 'package:flutter/material.dart';
-import '../../model/vote.dart'; // 别忘了导入你的 Vote 类
+import 'package:provider/provider.dart';
+import '../../model/vote.dart';
+import '../../provider/vote_provider.dart';
+import '../../services/http.dart'; // 别忘了导入你的 Vote 类
 
 class VoteCheckbox extends StatefulWidget {
   final Vote vote;
@@ -20,9 +23,9 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
   void initState() {
     super.initState();
     selectedOptions =
-        List.filled(widget.voteOption.votingOptionContent.length, false);
-    optionVotes =
-        List.filled(widget.voteOption.optionVotes.length, 0); // 初始化投票数量为 0
+        List<bool>.filled(widget.voteOption.votingOptionContent.length, false);
+    optionVotes = List<int>.filled(
+        widget.voteOption.votingOptionContent.length, 0); // 初始化投票数量为 0
   }
 
   @override
@@ -45,32 +48,35 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
             ),
           ),
           ListView.builder(
-            shrinkWrap: true,
-            itemCount: widget.voteOption.votingOptionContent.length,
-            itemBuilder: (context, index) {
-              return CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  '${widget.voteOption.votingOptionContent[index]} ',
-                  //(${optionVotes[index]})',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                value: selectedOptions[index],
-                onChanged: (bool? value) {
-                  setState(() {
-                    // selectedOptions[index] = value ?? false;
+              shrinkWrap: true,
+              itemCount: widget.voteOption.votingOptionContent.length,
+              itemBuilder: (context, index) {
+                String optionText =
+                    widget.voteOption.votingOptionContent[index];
+                if (index < optionVotes.length) {
+                  optionText = '$optionText (${optionVotes[index]})';
+                }
+                return CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(
+                      optionText,
+                      //'${widget.voteOption.votingOptionContent[index]} (${optionVotes[index]})',
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    value: selectedOptions[index],
+                    onChanged: (bool? value) {
+                      setState(() {
+                        selectedOptions[index] = value ?? false;
 
-                    // if (value ?? false) {
-                    //   optionVotes[index]++;
-                    // } else {
-                    //   optionVotes[index]--;
-                    // }
-                  });
-                },
-              );
-            },
-          ),
+                        if (value ?? false) {
+                          optionVotes[index]++;
+                        } else {
+                          optionVotes[index]--;
+                        }
+                      });
+                    });
+              }),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
@@ -89,12 +95,26 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                   fontWeight: FontWeight.w600, // 设置字体粗细
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
+                VoteResult voteResult = VoteResult(
+                  voteResultID: 1,
+                  vID: 1,
+                  userMall: '1112',
+                  oID: 1,
+                );
+                final result = await APIservice.addVoteResult(
+                    content: voteResult.toMap()); // 新增投票結果進資料庫
+
+                Provider.of<VoteProvider>(context, listen: false)
+                    .addVoteResult(voteResult);
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => VoteResult(
-                        originalVote: widget.vote,
+                      builder: (context) => VoteResultPage(
+                        //optionVotes: optionVotes,
+                        options: widget.voteOption.votingOptionContent,
+                        voteName: widget.vote.voteName,
+                        //originalVote: widget.vote,
                       ), // 修改这里
                     ));
               },

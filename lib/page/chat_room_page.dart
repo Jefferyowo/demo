@@ -2,18 +2,22 @@ import 'package:create_event2/model/vote.dart';
 import 'package:create_event2/page/vote/vote_page.dart';
 import 'package:flutter/material.dart';
 
-class ChatRoomPage extends StatefulWidget {
+import '../services/http.dart';
 
+class ChatRoomPage extends StatefulWidget {
   const ChatRoomPage({
     Key? key,
   }) : super(key: key);
-  
+
   @override
   _ChatRoomPageState createState() => _ChatRoomPageState();
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
+  TextEditingController questionController = TextEditingController();
+  late DateTime endTime;
+  bool isChecked = false;
   final List<String> _messages = [];
   late Vote _currentVote;
 
@@ -22,7 +26,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.initState();
     //_currentVote = widget.vote;
   }
-
 
   void _sendMessage(String message) {
     setState(() {
@@ -40,13 +43,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           ListTile(
             leading: Icon(Icons.poll),
             title: Text('投票'),
-            onTap: () {
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => VotePage(),
                 ),
-              );
+              ); 
             },
           ),
         ],
@@ -98,6 +101,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 leading: Icon(Icons.poll),
                                 title: Text('投票'),
                                 onTap: () {
+                                  //getallVote();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -134,4 +138,20 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       ),
     );
   }
+  // getallVote() async {
+  //   final result = await APIservice.seletallVote(eID: 12345);
+  //   print(result[0]);
+  //   if (result[0]) {
+  //     setState(() {
+  //       //_votes = result[1];
+  //     });
+  //     Navigator.pushNamedAndRemoveUntil(
+  //       context,
+  //       '/MyBottomBar2',
+  //       ModalRoute.withName('/'),
+  //     );
+  //   } else {
+  //     print('$result 在 server 抓取投票失敗');
+  //   }
+  // }
 }

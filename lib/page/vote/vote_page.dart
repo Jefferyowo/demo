@@ -1,4 +1,3 @@
-
 import 'package:create_event2/page/vote/add_vote_page.dart';
 import 'package:create_event2/page/vote/vote_multiple.dart';
 import 'package:create_event2/page/vote/vote_single.dart';
@@ -11,68 +10,160 @@ import 'package:provider/provider.dart';
 import '../../model/vote.dart';
 
 class VotePage extends StatefulWidget {
-
   const VotePage({
     Key? key,
   }) : super(key: key);
 
-  
   @override
   State<VotePage> createState() => _VotePageState();
 }
 
 class _VotePageState extends State<VotePage> {
+  TextEditingController questionController = TextEditingController();
+  late DateTime endTime;
+  bool isChecked = false;
+  List<String> options = ['']; 
+  List<int> optionVotes = []; // 票數
+  
   late Vote _currentVote;
+  late List<dynamic> _votes = [];
+  late List<dynamic> _voteOptions = [];
+  // late List<VoteResult> _voteResults = [];
 
   @override
   void initState() {
     super.initState();
-    // _currentVote = widget.vote;
-    // 確保索引有效，然後初始化 _currentVote
-    // if (widget.vote != null && widget.vote >= 0 && widget.vote < voteProvider.votes.length) {
-    //   _currentVote = voteProvider.votes[widget.vote];
-    // }
+    endTime = DateTime.now();
+    getallVote();
+    getallVoteOption();
+    // getallResult();
   }
+
+  getallVote() async {
+    String voteName = questionController.text;
+    Vote vote = Vote(
+      vID: 1,
+      eID: 1,
+      userMall: '1112',
+      voteName: voteName,
+      endTime: endTime,
+      singleOrMultipleChoice: isChecked,
+    );
+    final result = await APIservice.seletallVote(eID: 1113);
+    print(result[0]);
+    if (result[0]) {
+      setState(() {
+        _votes = result[1].map((map) => Vote.fromMap(map)).toList();
+      });
+      
+      // Navigator.pushNamedAndRemoveUntil(
+      //   context,
+      //   '/MyBottomBar2',
+      //   ModalRoute.withName('/'),
+      // );
+    } else {
+      print('$result 在 server 抓取投票失敗');
+    }
+    Provider.of<VoteProvider>(context, listen: false).addVote(vote);
+  }
+
+  getallVoteOption() async {
+    VoteOption voteOption = VoteOption(
+        oID: 1,
+        vID: 1112,
+        votingOptionContent: options,
+        // optionVotes: optionVotes
+    );
+    final result = await APIservice.seletallVoteOptions(vID: 115);
+    final List test = [];
+    print(result[1]);
+    print(result[1][1]);
+    for (var i in result[1]){
+      test.add(result[1][i].map((map) => VoteOption.fromMap(map)).toList());
+    }
+    print('123');
+    print(test);
+    // vid:115,votingOptionContent: B,N,M
+    // print('result[1][2]');
+    // print(result[1][2]);
+    if (result[0]) {
+      setState(() {
+        _voteOptions = result[1].map((map) => VoteOption.fromMap(map)).toList();
+      });
+      // Navigator.pushNamedAndRemoveUntil(
+      //   context,
+      //   '/MyBottomBar2',
+      //   ModalRoute.withName('/'),
+      // );
+    } else {
+      print('$result 在 server 抓取投票選項失敗');
+    }
+    Provider.of<VoteProvider>(context, listen: false)
+        .addVoteOptions(voteOption);
+  }
+
+  getallResult() async {
+    final result = await APIservice.seletallVoteResult(vID: 1, uID: '1112');
+    print(result[0]);
+    if (result[0]) {
+      // setState(() {
+      //   _voteResults = result[1];
+      // });
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/MyBottomBar2',
+        ModalRoute.withName('/'),
+      );
+    } else {
+      print('$result 在 server 抓取投票結果失敗');
+    }
+  }
+
   Future<void> _confirmDeleteDialog(BuildContext context, int index) async {
     final voteProvider = Provider.of<VoteProvider>(context, listen: false);
 
+    // 返回一个对话框
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        // 构建一个警告对话框
         return AlertDialog(
           title: Text('確認刪除此投票？'),
           actions: <Widget>[
             TextButton(
               child: Text('是'),
               onPressed: () async {
-                final List result = await APIservice.deleteVote( vID: 74);
-                // final List result1 = await APIservice.deleteVoteOptions(content: _currentVote.toMap(), vID: 1);
+                // 调用API service删除投票和相关选项
+                final List result =
+                    await APIservice.deleteVote(vID: 105); // 刪除資料庫
+                final List result1 =
+                    await APIservice.deleteVoteOptions(vID: 1112); // 刪除資料庫
                 print(result[0]);
                 if (result[0]) {
-                // var result = await Sqlite.deleteJourney(
-                //   tableName: 'journey',
-                //   tableIdName: 'jid',
-                //   deleteId: _currentEvent.jID ?? 0,
-                // );
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/MyBottomBar2',
-                  ModalRoute.withName('/'),
-                );
-              } else {
-                print('在server刪除投票失敗');
-              }
-              // if (result1[0]) {
-              //   Navigator.pushNamedAndRemoveUntil(
-              //     context,
-              //     '/MyBottomBar2',
-              //     ModalRoute.withName('/'),
-              //   );
-              // } else {
-              //   print('在server刪除投票選項失敗');
-              // }
-
+                  // var result = await Sqlite.deleteJourney(
+                  //   tableName: 'journey',
+                  //   tableIdName: 'jid',
+                  //   deleteId: _currentEvent.jID ?? 0,
+                  // );
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/MyBottomBar2',
+                    ModalRoute.withName('/'),
+                  );
+                } else {
+                  print('在server刪除投票失敗');
+                }
+                if (result1[0]) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/MyBottomBar2',
+                    ModalRoute.withName('/'),
+                  );
+                } else {
+                  print('在server刪除投票選項失敗');
+                }
+                // 从Provider中删除投票
                 voteProvider.deleteVote(index);
                 Navigator.of(context).pop();
               },
@@ -132,10 +223,20 @@ class _VotePageState extends State<VotePage> {
             ),
           ),
           ListView.builder(
-            itemCount: voteProvider.votes.length,
+            itemCount: _votes.length,
+            // itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
-              final vote = voteProvider.votes[index];
-              final voteOption = voteProvider.voteoptions[index];
+              if(_votes.isEmpty || _voteOptions.isEmpty){
+                return Container(
+                  child: Text("列表為空"),
+                );
+              }
+              // 获取当前索引的投票和相应的投票选项
+              final vote = _votes[index];
+              //final vote = voteProvider.votes[index];
+              final voteOption = _voteOptions[index];
+              //final voteOption = voteProvider.voteoptions[index];
+              //final voteResult = _voteResults[index];
 
               return Container(
                 margin: EdgeInsets.all(20.0),
@@ -146,6 +247,7 @@ class _VotePageState extends State<VotePage> {
                 ),
                 child: Stack(
                   children: [
+                    // 通过InkWell添加一个可点击的透明区域，用于导航到投票详情页
                     Positioned.fill(
                       child: InkWell(
                         onTap: () {
@@ -199,20 +301,27 @@ class _VotePageState extends State<VotePage> {
                               ),
                             ),
                             onPressed: () {
+                              
+                              // 根据投票类型导航到不同的投票页面
                               if (vote.singleOrMultipleChoice) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        VoteCheckbox(vote: vote, voteOption: voteOption,),
+                                    builder: (context) => VoteCheckbox(
+                                      vote: vote,
+                                      voteOption: voteOption,
+                                    ),
                                   ),
                                 );
                               } else {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        SingleVote(vote: vote, voteOption: voteOption,),
+                                    builder: (context) => SingleVote(
+                                      vote: vote,
+                                      voteOption: voteOption 
+                                      //as VoteOption,
+                                    ),
                                   ),
                                 );
                               }

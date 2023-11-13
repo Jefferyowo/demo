@@ -29,9 +29,11 @@ class _AddVotePageState extends State<AddVotePage> {
   List<String> options = ['']; //['a']
   //options.add(B選項)
   //['a','b']
-  List<int> optionVotes = [];
+  List<int> optionVotes = []; // 票數
 
+  // 添加选项的函数
   void addOption() {
+    // 更新状态，添加一个空字符串到选项列表
   setState(() {
     options.add('');
     print(options);
@@ -48,7 +50,7 @@ class _AddVotePageState extends State<AddVotePage> {
       return Vote(
         vID: voteData['vID'],
         eID: voteData['eID'],
-        uID: voteData['uID'],
+        userMall: voteData['uID'],
         voteName: voteData['voteName'],
         endTime: DateTime(
             voteData['endTime'] ~/ 100000000, // 年
@@ -348,46 +350,51 @@ class _AddVotePageState extends State<AddVotePage> {
   // 儲存
   Future saveForm() async {
     String voteName = questionController.text;
+    // 检查投票名称是否非空
     if (voteName.isNotEmpty) {
+      // 从选项列表中过滤出非空选项
       List<String> updatedOptions =
           options.where((option) => option.isNotEmpty).toList();
-
+      // 检查是否存在非空选项    
       if (updatedOptions.isNotEmpty) {
+        // 生成一个包含所有选项初始投票数（均为0）的列表
         List<int> initialOptionVotes =
             List.generate(updatedOptions.length, (index) => 0);
-
+        // 创建一个代表整体投票的Vote对象    
         Vote vote = Vote(
           vID: 1,
           eID: 1,
-          uID: '1',
+          userMall: '1112',
           voteName: voteName,
           endTime: endTime,
           singleOrMultipleChoice: isChecked,
         );
-
+        // 创建一个包含所有选项信息的VoteOption对象
         VoteOption voteOption = VoteOption(
           oID: 1,
-          vID: 2,
-          votingOptionContent: options, //a
-          optionVotes: optionVotes
+          vID: 1112,
+          votingOptionContent: options, 
+          // optionVotes: optionVotes
         );
+        // 遍历每个选项并创建一个独立的VoteOption对象
         for (var element in options) {
           VoteOption voteOptiontest = VoteOption(
           oID: 1,
-          vID: 2,
+          vID: 1112,
           votingOptionContent: [element], //a
-          optionVotes: optionVotes
+          // optionVotes: optionVotes
         );
-        
-        final result1 = await APIservice.addVoteOptions(content: voteOptiontest.toMap());
+        // 使用API service将单独的选项添加到数据库
+        final result1 = await APIservice.addVoteOptions(content: voteOptiontest.toMap()); // 新增投票選項進資料庫
         }
+        // 将整体的选项添加到Provider中
         Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
-
+        // 将整体的投票添加到Provider中
         Provider.of<VoteProvider>(context, listen: false).addVote(vote);
-      //  Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
+        // Provider.of<VoteProvider>(context, listen: false).addVoteOptions(voteOption);
 
-        
-        final result = await APIservice.addVote(content: vote.toMap());
+        // 使用API service将整体的投票添加到数据库
+        final result = await APIservice.addVote(content: vote.toMap()); // 新增投票進資料庫
         // final result1 = await APIservice.addVoteOptions(content: voteOption.toMap());
         Navigator.pop(context);
       }

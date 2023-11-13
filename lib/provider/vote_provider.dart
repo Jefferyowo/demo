@@ -5,9 +5,11 @@ import '../model/vote.dart';
 class VoteProvider extends ChangeNotifier {
   final List<Vote> _votes = [];
   final List<VoteOption> _options = [];
+  final List<VoteResult> _result = [];
 
   List<Vote> get votes => _votes;
   List<VoteOption> get voteoptions => _options;
+  List<VoteResult> get voteresult => _result;
 
   void addVote(Vote vote) {
     _votes.add(vote);
@@ -16,6 +18,11 @@ class VoteProvider extends ChangeNotifier {
 
   void addVoteOptions(VoteOption voteOption) {
     _options.add(voteOption);
+    notifyListeners();
+  }
+
+  void addVoteResult(VoteResult voteResult) {
+    _result.add(voteResult);
     notifyListeners();
   }
 
@@ -50,7 +57,7 @@ class VoteProvider extends ChangeNotifier {
     }
   }
 
-  Vote? getVoteById(String id) {
-    return _votes.firstWhere((vote) => vote.vID == id);
-  }
+  // Vote? getVoteById(String id) {
+  //   return _votes.firstWhere((vote) => vote.vID == id);
+  // }
 }

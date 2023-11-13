@@ -11,7 +11,9 @@ class VoteList extends StatelessWidget {
       builder: (context, voteProvider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('投票列表'),
+            title: Text('投票結果', style: TextStyle(color: Colors.black)),
+            centerTitle: true,
+            backgroundColor: Color(0xFF4A7DAB),
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
@@ -27,18 +29,20 @@ class VoteList extends StatelessWidget {
               //     vote.optionVotes.reduce((a, b) => a + b); // 计算投票总数
 
               return ListTile(
-                title: Text(vote.voteName),
+                title: Text(vote.voteName,style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),),
                 // subtitle: Text('投票總數: $totalVotes'), // 显示投票总数
                 onTap: () {
                   // 处理点击事件，比如导航到投票详情页面
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VoteResult(
-                        originalVote: vote, // 传递对应的 Vote 对象
-                      ),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => 
+                  //     VoteResult(
+                  //       originalVote: vote, // 传递对应的 Vote 对象
+                  //     ),
+                  //   ),
+                  // );
                 },
               );
             },

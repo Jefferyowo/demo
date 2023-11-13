@@ -5,29 +5,25 @@ import 'package:flutter/material.dart';
 class Vote {
   final int? vID;
   final int? eID;
-  final String? uID; // 新增的id属性
+  final String? userMall; 
   final String voteName;
   final DateTime endTime;
   final bool singleOrMultipleChoice;
-
-  // String id;
 
   // 构造函数，用于初始化对象
   const Vote({
     required this.vID,
     required this.eID,
-    required this.uID, 
+    required this.userMall, 
     required this.voteName,
     required this.endTime,
     required this.singleOrMultipleChoice,
-    // required this.id,
-    // required this.votingOptionContent,
-    // required this.optionVotes,
   });
 
   get start => null;
 
   factory Vote.fromMap(Map<String, dynamic> map) {
+    
     int endTimeInt = map['endTime'];
 
     DateTime endTime = DateTime(
@@ -40,7 +36,7 @@ class Vote {
     return Vote(
       vID: map['vID'],
       eID: map['eID'],
-      uID: map['uID'],
+      userMall: map['uID'],
       voteName: map['voteName'],
       endTime: endTime,
       singleOrMultipleChoice: map['singleOrMultipleChoice'] == 1,
@@ -51,7 +47,7 @@ class Vote {
     return {
       'vID': vID,
       'eID': eID,
-      'uID': uID,
+      'uID': userMall,
       'voteName': voteName,
       'endTime': endTime.year * 100000000 +
           endTime.month * 1000000 +
@@ -67,13 +63,50 @@ class VoteOption {
   final int? oID;
   final int? vID;
   final List<String> votingOptionContent;
-  final List<int> optionVotes;
+  // final List<int> optionVotes;
 
   const VoteOption({
     required this.oID,
     required this.vID,
     required this.votingOptionContent,
-    required this.optionVotes,
+    // required this.optionVotes,
+  });
+
+  get start => null;
+
+  factory VoteOption.fromMap(Map<String, dynamic> map) {
+    
+    print('voting');
+    return VoteOption(
+      oID: map['oID'],
+      vID: map['vID'],
+      votingOptionContent: [map['votingOptionContent']],
+      // optionVotes: [map['optionVotes']],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'vID': vID,
+      'votingOptionContent': votingOptionContent,
+      // 'optionVotes': optionVotes,
+    };
+  }
+
+}
+
+
+class VoteResult {
+  final int? voteResultID;
+  final int? vID;
+  final String? userMall;
+  final int? oID;
+
+  const VoteResult({
+    required this.voteResultID,
+    required this.vID,
+    required this.userMall,
+    required this.oID,
   });
 
   get start => null;
@@ -81,8 +114,8 @@ class VoteOption {
   Map<String, dynamic> toMap() {
     return {
       'vID': vID,
-      'votingOptionContent': votingOptionContent,
-      //'optionVotes': optionVotes,
+      'uID': userMall,
+      'oID': oID,
     };
   }
 }

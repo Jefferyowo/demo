@@ -4,26 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/vote_provider.dart';
+import '../../services/http.dart';
 
 class SingleVote extends StatefulWidget {
   final Vote vote;
   final VoteOption voteOption;
+  //final VoteResult voteResult;
 
-  SingleVote({required this.vote, required this.voteOption});
+  SingleVote({
+    required this.vote,
+    required this.voteOption,
+    //required this.voteResult
+  });
 
   @override
   _SingleVoteState createState() => _SingleVoteState();
 }
 
 class _SingleVoteState extends State<SingleVote> {
+  TextEditingController questionController = TextEditingController();
   int selectedOptionIndex = -1;
-  // late List<int> optionVotes;
+  //late List<int> optionVotes;
 
   @override
   void initState() {
     super.initState();
+    final votingOptionContentLength =
+        widget.voteOption.votingOptionContent.length;
+    //optionVotes = List<int>.from(widget.voteOption.optionVotes ?? []);
     // optionVotes =
     //     List.from(widget.voteOption.optionVotes.isNotEmpty ? widget.voteOption.optionVotes : []); // 使用widget.vote.optionVotes的初始值
+    // 扩展optionVotes以匹配votingOptionContent的长度
+    // while (optionVotes.length < votingOptionContentLength) {
+    //   optionVotes.add(0); // 或者添加其他默认值
+    // }
   }
 
 // 在vote函数中更新Vote对象
@@ -44,24 +58,27 @@ class _SingleVoteState extends State<SingleVote> {
 
       // 创建一个新的Vote对象来更新当前的投票状态
       final updatedVote = Vote(
-        vID: widget.vote.vID, 
-        eID: widget.vote.eID, 
-        uID: widget.vote.uID, 
-        voteName: widget.vote.voteName, 
-        endTime: widget.vote.endTime, 
-        singleOrMultipleChoice: widget.vote.singleOrMultipleChoice
-      );
+          vID: widget.vote.vID,
+          eID: widget.vote.eID,
+          userMall: widget.vote.userMall,
+          voteName: widget.vote.voteName,
+          endTime: widget.vote.endTime,
+          singleOrMultipleChoice: widget.vote.singleOrMultipleChoice);
 
-      
-      final updatedVote1 = VoteOption(
+      final updatedVoteOption = VoteOption(
         oID: widget.voteOption.oID,
         vID: widget.voteOption.vID,
         votingOptionContent: widget.voteOption.votingOptionContent,
-        optionVotes: widget.voteOption.optionVotes,
+        // optionVotes: widget.voteOption.optionVotes,
       );
 
       // 使用Provider来更新Vote对象
-      voteProvider.updateVote(updatedVote, widget.vote, updatedVote1, widget.voteOption,);
+      voteProvider.updateVote(
+        updatedVote,
+        widget.vote,
+        updatedVoteOption,
+        widget.voteOption,
+      );
     });
   }
 
@@ -99,17 +116,23 @@ class _SingleVoteState extends State<SingleVote> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   widget.vote.voteName,
-                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 child: ListView.builder(
                   itemCount: widget.voteOption.votingOptionContent.length,
                   itemBuilder: (context, index) {
+                    String optionText =
+                        widget.voteOption.votingOptionContent[index];
+                    // if (index < optionVotes.length) {
+                    //   optionText = '$optionText (${optionVotes[index]})';
+                    // }
                     return RadioListTile(
                       title: Text(
-                        '${widget.voteOption.votingOptionContent[index]}',
-                        //(${optionVotes[index]})',
+                        optionText,
+                        //'${widget.voteOption.votingOptionContent[index]}(${optionVotes[index]})',
                         style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
@@ -140,18 +163,34 @@ class _SingleVoteState extends State<SingleVote> {
                       fontWeight: FontWeight.w600, // 设置字体粗细
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (selectedOptionIndex != -1) {
                       // 进行额外的投票逻辑处理，例如更新数据库等。
                     }
+                    VoteResult voteResult = VoteResult(
+                      voteResultID: 1,
+                      vID: 1113,
+                      userMall: '1113',
+                      oID: 1113,
+                    );
+
+                    final result = await APIservice.addVoteResult(
+                        content: voteResult.toMap()); // 新增投票結果進資料庫
+
+                    Provider.of<VoteProvider>(context, listen: false)
+                        .addVoteResult(voteResult);
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => VoteResult(
-                          originalVote: widget.vote,
+                        builder: (context) => VoteResultPage(
+                          //optionVotes: optionVotes,
+                          options: widget.voteOption.votingOptionContent,
+                          voteName: widget.vote.voteName,
+                          //originalVote: widget.vote,
                         ),
                       ),
                     );
+                    
                   },
                 ),
               ),
@@ -160,5 +199,10 @@ class _SingleVoteState extends State<SingleVote> {
         ],
       ),
     );
+  }
+
+  Future save() async {
+    String voteName = questionController.text;
+    if (voteName.isNotEmpty) {}
   }
 }
