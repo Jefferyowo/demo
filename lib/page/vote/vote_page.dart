@@ -22,9 +22,9 @@ class _VotePageState extends State<VotePage> {
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
   bool isChecked = false;
-  List<String> options = ['']; 
+  List<String> options = [''];
   List<int> optionVotes = []; // 票數
-  
+
   late Vote _currentVote;
   late List<dynamic> _votes = [];
   late List<dynamic> _voteOptions = [];
@@ -50,12 +50,13 @@ class _VotePageState extends State<VotePage> {
       singleOrMultipleChoice: isChecked,
     );
     final result = await APIservice.seletallVote(eID: 1113);
-    print(result[0]);
+    print('getallVote');
+    print(result[1]);
     if (result[0]) {
       setState(() {
         _votes = result[1].map((map) => Vote.fromMap(map)).toList();
       });
-      
+
       // Navigator.pushNamedAndRemoveUntil(
       //   context,
       //   '/MyBottomBar2',
@@ -69,20 +70,19 @@ class _VotePageState extends State<VotePage> {
 
   getallVoteOption() async {
     VoteOption voteOption = VoteOption(
-        oID: 1,
-        vID: 1112,
-        votingOptionContent: options,
-        // optionVotes: optionVotes
+      oID: 1,
+      vID: 1112,
+      votingOptionContent: options,
     );
     final result = await APIservice.seletallVoteOptions(vID: 115);
-    final List test = [];
+    final List<VoteOption> test = [];
+    print('getallVoteOption');
     print(result[1]);
-    print(result[1][1]);
-    for (var i in result[1]){
-      test.add(result[1][i].map((map) => VoteOption.fromMap(map)).toList());
+
+    for (var map in result[1]) {
+      test.add(VoteOption.fromMap(map));
     }
-    print('123');
-    print(test);
+
     // vid:115,votingOptionContent: B,N,M
     // print('result[1][2]');
     // print(result[1][2]);
@@ -90,6 +90,8 @@ class _VotePageState extends State<VotePage> {
       setState(() {
         _voteOptions = result[1].map((map) => VoteOption.fromMap(map)).toList();
       });
+      print('voteOptions');
+      print(_voteOptions);
       // Navigator.pushNamedAndRemoveUntil(
       //   context,
       //   '/MyBottomBar2',
@@ -224,20 +226,21 @@ class _VotePageState extends State<VotePage> {
           ),
           ListView.builder(
             itemCount: _votes.length,
+
             // itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
-              if(_votes.isEmpty || _voteOptions.isEmpty){
+              if (_votes.isEmpty || _voteOptions.isEmpty) {
                 return Container(
                   child: Text("列表為空"),
                 );
               }
-              // 获取当前索引的投票和相应的投票选项
+
               final vote = _votes[index];
               //final vote = voteProvider.votes[index];
+
               final voteOption = _voteOptions[index];
               //final voteOption = voteProvider.voteoptions[index];
               //final voteResult = _voteResults[index];
-
               return Container(
                 margin: EdgeInsets.all(20.0),
                 padding: EdgeInsets.all(25.0),
@@ -301,7 +304,6 @@ class _VotePageState extends State<VotePage> {
                               ),
                             ),
                             onPressed: () {
-                              
                               // 根据投票类型导航到不同的投票页面
                               if (vote.singleOrMultipleChoice) {
                                 Navigator.push(
@@ -319,7 +321,9 @@ class _VotePageState extends State<VotePage> {
                                   MaterialPageRoute(
                                     builder: (context) => SingleVote(
                                       vote: vote,
-                                      voteOption: voteOption 
+                                      voteOptions: _voteOptions
+                                          .cast<VoteOption>(), // 這裡進行轉換
+
                                       //as VoteOption,
                                     ),
                                   ),

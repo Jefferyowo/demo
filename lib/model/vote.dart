@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class Vote {
   final int? vID;
   final int? eID;
-  final String? userMall; 
+  final String? userMall;
   final String voteName;
   final DateTime endTime;
   final bool singleOrMultipleChoice;
@@ -14,7 +14,7 @@ class Vote {
   const Vote({
     required this.vID,
     required this.eID,
-    required this.userMall, 
+    required this.userMall,
     required this.voteName,
     required this.endTime,
     required this.singleOrMultipleChoice,
@@ -23,7 +23,6 @@ class Vote {
   get start => null;
 
   factory Vote.fromMap(Map<String, dynamic> map) {
-    
     int endTimeInt = map['endTime'];
 
     DateTime endTime = DateTime(
@@ -54,7 +53,7 @@ class Vote {
           endTime.day * 10000 +
           endTime.hour * 100 +
           endTime.minute, // 將 DateTime 轉換為 ISO 8601 字串
-      'singleOrMultipleChoice': singleOrMultipleChoice? 1 : 0,
+      'singleOrMultipleChoice': singleOrMultipleChoice ? 1 : 0,
     };
   }
 }
@@ -75,8 +74,6 @@ class VoteOption {
   get start => null;
 
   factory VoteOption.fromMap(Map<String, dynamic> map) {
-    
-    print('voting');
     return VoteOption(
       oID: map['oID'],
       vID: map['vID'],
@@ -92,9 +89,7 @@ class VoteOption {
       // 'optionVotes': optionVotes,
     };
   }
-
 }
-
 
 class VoteResult {
   final int? voteResultID;
