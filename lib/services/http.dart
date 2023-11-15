@@ -167,6 +167,7 @@ class APIservice {
       {required int eID}) async {
     final url =
         Uri.parse("http://163.22.17.145:3000/api/vote/getAllVote/$eID");
+    //await Sqlite.clear(tableName: "vote");    
 
     final response = await http.post(
       url,
@@ -175,28 +176,29 @@ class APIservice {
     );
     final serverVote = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      // for (var vote in serverVote) {
-      //   int endTimeInt = vote['endTime'];
-      //   final Vote newVoteData = Vote(
-      //       vID: vote['vID'],
-      //       eID: vote['eID'],
-      //       uID: vote['uID'],
-      //       voteName: vote['voteName'].toString(),
-      //       endTime: DateTime(
-      //           endTimeInt ~/ 100000000, // 年
-      //           (endTimeInt % 100000000) ~/ 1000000, // 月
-      //           (endTimeInt % 1000000) ~/ 10000, // 日
-      //           (endTimeInt % 10000) ~/ 100, // 小时
-      //           endTimeInt % 100 // 分钟
-      //           ),
-      //       singleOrMultipleChoice: vote['isChecked'] == 1);
-      //   // Sqlite.insert(tableName: 'vote', insertData: newVoteData.toMap());
-      // }
-      print('抓取投票列表成功');
-      return [true, serverVote];
+      for (var vote in serverVote) {
+        int endTimeInt = vote['endTime'];
+        final Vote newVoteData = Vote(
+            vID: vote['vID'],
+            eID: vote['eID'],
+            userMall: vote['userMall'],
+            voteName: vote['voteName'].toString(),
+            endTime: DateTime(
+                endTimeInt ~/ 100000000, // 年
+                (endTimeInt % 100000000) ~/ 1000000, // 月
+                (endTimeInt % 1000000) ~/ 10000, // 日
+                (endTimeInt % 10000) ~/ 100, // 小时
+                endTimeInt % 100 // 分钟
+                ),
+            singleOrMultipleChoice: vote['isChecked'] == 1);
+        Sqlite.insert(tableName: 'vote', insertData: newVoteData.toMap());
+      }
+      print('完成 刷新 sqlite 投票資料表');
+      return serverVote;
     } else {
-      print(serverVote);
-      return [false, serverVote];
+      print('失敗 刷新 sqlite 投票資料表');
+      print('失敗 $serverVote response.statusCode ${response.statusCode}');
+      return serverVote;
     }
   }
 
@@ -240,9 +242,9 @@ class APIservice {
 
   // 抓全部投票結果
   static Future<List<dynamic>> seletallVoteResult(
-      {required int vID, required String uID}) async {
+      {required int vID, required String userMall}) async {
     final url =
-        Uri.parse("http://163.22.17.145:3000/api/result/getAllResult/$vID/$uID");
+        Uri.parse("http://163.22.17.145:3000/api/result/getAllResult/$vID/$userMall");
 
     final response = await http.post(
       url,
