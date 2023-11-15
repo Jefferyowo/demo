@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../model/vote.dart';
+import '../../services/sqlite.dart';
 
 class VotePage extends StatefulWidget {
   const VotePage({
@@ -25,18 +26,52 @@ class _VotePageState extends State<VotePage> {
   List<String> options = [''];
   List<int> optionVotes = []; // 票數
 
-  late Vote _currentVote;
+  // late Vote _currentVote;
   late List<dynamic> _votes = [];
   late List<dynamic> _voteOptions = [];
-  // late List<VoteResult> _voteResults = [];
+
+  List<Vote> voteTest = [];
+  List<VoteOption> voteOptionTest = [];
 
   @override
   void initState() {
     super.initState();
     endTime = DateTime.now();
-    getallVote();
-    getallVoteOption();
-    // getallResult();
+    //getallVote();
+    // getallVoteOption();
+    getVoteDate();
+    //getVoteOptionDate();
+    
+  }
+  // 抓投票列表資料庫
+  getVoteDate() async {
+    await Sqlite.open; //開啟資料庫
+    List? queryVoteTable = await Sqlite.queryAll(tableName: 'vote');
+    queryVoteTable ??= [];
+    setState(() {
+      voteTest = queryVoteTable!.map((e) => Vote.fromMap(e)).toList();
+    });
+    // for (var element in queryVoteTable) {
+    //   print(element);
+    // }
+    print(voteTest);
+    print('抓投票列表資料庫成功');
+    return queryVoteTable;
+  }
+
+  // 抓投票選項資料庫
+  getVoteOptionDate() async {
+    await Sqlite.open; //開啟資料庫
+    List? queryVoteOptionTable = await Sqlite.queryAll(tableName: 'voteOption');
+    queryVoteOptionTable ??= [];
+    setState(() {
+      voteOptionTest = queryVoteOptionTable!.map((e) => VoteOption.fromMap(e)).toList();
+    });
+    // for (var element in queryVoteOptionTable) {
+    //   print(element);
+    // }
+    print(voteOptionTest);
+    return queryVoteOptionTable;
   }
 
   getallVote() async {
@@ -49,23 +84,19 @@ class _VotePageState extends State<VotePage> {
       endTime: endTime,
       singleOrMultipleChoice: isChecked,
     );
-    final result = await APIservice.seletallVote(eID: 1113);
+    
+    final result = await APIservice.seletallVote(eID: 123);
     print('getallVote');
     print(result[1]);
     if (result[0]) {
       setState(() {
         _votes = result[1].map((map) => Vote.fromMap(map)).toList();
       });
-
-      // Navigator.pushNamedAndRemoveUntil(
-      //   context,
-      //   '/MyBottomBar2',
-      //   ModalRoute.withName('/'),
-      // );
     } else {
       print('$result 在 server 抓取投票失敗');
     }
     Provider.of<VoteProvider>(context, listen: false).addVote(vote);
+    
   }
 
   getallVoteOption() async {
@@ -74,7 +105,7 @@ class _VotePageState extends State<VotePage> {
       vID: 1112,
       votingOptionContent: options,
     );
-    final result = await APIservice.seletallVoteOptions(vID: 115);
+    final result = await APIservice.seletallVoteOptions(vID: 123);
     final List<VoteOption> test = [];
     print('getallVoteOption');
     print(result[1]);
@@ -92,11 +123,6 @@ class _VotePageState extends State<VotePage> {
       });
       print('voteOptions');
       print(_voteOptions);
-      // Navigator.pushNamedAndRemoveUntil(
-      //   context,
-      //   '/MyBottomBar2',
-      //   ModalRoute.withName('/'),
-      // );
     } else {
       print('$result 在 server 抓取投票選項失敗');
     }
@@ -104,22 +130,7 @@ class _VotePageState extends State<VotePage> {
         .addVoteOptions(voteOption);
   }
 
-  getallResult() async {
-    final result = await APIservice.seletallVoteResult(vID: 1, uID: '1112');
-    print(result[0]);
-    if (result[0]) {
-      // setState(() {
-      //   _voteResults = result[1];
-      // });
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/MyBottomBar2',
-        ModalRoute.withName('/'),
-      );
-    } else {
-      print('$result 在 server 抓取投票結果失敗');
-    }
-  }
+  
 
   Future<void> _confirmDeleteDialog(BuildContext context, int index) async {
     final voteProvider = Provider.of<VoteProvider>(context, listen: false);
@@ -206,7 +217,11 @@ class _VotePageState extends State<VotePage> {
                 MaterialPageRoute(
                   builder: (context) => AddVotePage(),
                 ),
-              );
+              ).then((value) {
+                setState(() {
+                  
+                });
+              });
 
               if (result != null && result is Vote) {
                 voteProvider.addVote(result);
