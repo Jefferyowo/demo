@@ -11,6 +11,8 @@ class Sqlite {
   static const journeyTable = 'journey';
   static const eventTable = 'event';
   static const voteTable = 'vote';//
+  static const votingOptionTable = 'votingOption';//
+  static const resultOfVoteTable = 'resultOfVote';//
 
   static Database? db;
   static Future<Database?> get open async => db ??= await initDatabase();
@@ -92,16 +94,36 @@ class Sqlite {
         CREATE TABLE $voteTable (
         vID integer,
         eID integer,
-        uID text,
+        userMall text,
         voteName text,
         endTime int,
         singleOrMultipleChoice integer,
-        votingOptionContent text,
-        optionVotes
+        
         );
       ''');
     print('建立投票資料表');
+    //投票選項
+    await db.execute('''
+        CREATE TABLE $votingOptionTable (
+        oID integer,
+        vID integer,
+        votingOptionContent text, 
+        ); 
+      ''');
+    print('建立投票選項資料表');
+    //投票結果
+    await db.execute('''
+        CREATE TABLE $resultOfVoteTable (
+        voteResultID integer,
+        vID integer,
+        uID text,
+        oID integer,
+        votingTime int, 
+        ); 
+      ''');
+    print('建立投票結果資料表');
   }
+
 
   // 新增
   static Future<List> insert(
