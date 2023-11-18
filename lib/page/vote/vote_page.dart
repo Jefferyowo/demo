@@ -37,9 +37,9 @@ class _VotePageState extends State<VotePage> {
   void initState() {
     super.initState();
     endTime = DateTime.now();
-    //getallVote();
-    // getallVoteOption();
-    getVoteDate();
+    getallVote();
+    getallVoteOption();
+    //getVoteDate();
     //getVoteOptionDate();
     
   }
@@ -149,9 +149,9 @@ class _VotePageState extends State<VotePage> {
               onPressed: () async {
                 // 调用API service删除投票和相关选项
                 final List result =
-                    await APIservice.deleteVote(vID: 105); // 刪除資料庫
+                    await APIservice.deleteVote(vID: 16); // 刪除資料庫
                 final List result1 =
-                    await APIservice.deleteVoteOptions(vID: 1112); // 刪除資料庫
+                    await APIservice.deleteVoteOptions(vID: 2); // 刪除資料庫
                 print(result[0]);
                 if (result[0]) {
                   // var result = await Sqlite.deleteJourney(
@@ -159,20 +159,22 @@ class _VotePageState extends State<VotePage> {
                   //   tableIdName: 'jid',
                   //   deleteId: _currentEvent.jID ?? 0,
                   // );
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/MyBottomBar2',
-                    ModalRoute.withName('/'),
-                  );
+                  // Navigator.pushNamedAndRemoveUntil(
+                  //   context,
+                  //   '/MyBottomBar2',
+                  //   ModalRoute.withName('/'),
+                  // );
+                  
                 } else {
                   print('在server刪除投票失敗');
                 }
                 if (result1[0]) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/MyBottomBar2',
-                    ModalRoute.withName('/'),
-                  );
+                  // Navigator.pushNamedAndRemoveUntil(
+                  //   context,
+                  //   '/',
+                  //   ModalRoute.withName('/'),
+                  // );
+                  
                 } else {
                   print('在server刪除投票選項失敗');
                 }
@@ -326,7 +328,7 @@ class _VotePageState extends State<VotePage> {
                                   MaterialPageRoute(
                                     builder: (context) => VoteCheckbox(
                                       vote: vote,
-                                      voteOption: voteOption,
+                                      voteOptions: _voteOptions.cast<VoteOption>(),
                                     ),
                                   ),
                                 );

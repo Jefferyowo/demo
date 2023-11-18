@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:uuid/uuid.dart';
 
 class Vote {
-  final int? vID;
+  final int vID;
   final int? eID;
   final String? userMall;
   final String voteName;
@@ -92,7 +92,7 @@ class VoteOption {
 }
 
 class VoteResult {
-  final int? voteResultID;
+  final int voteResultID;
   final int? vID;
   final String? userMall;
   final int? oID;

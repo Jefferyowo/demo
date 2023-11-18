@@ -162,6 +162,28 @@ class APIservice {
     }
   }
 
+  // 更新投票結果
+  static Future<List<dynamic>> updateResult(
+      {required int voteResultID}) async {
+    String url =
+        "http://163.22.17.145:3000/api/result/updateResult/$voteResultID"; //api後接檔案名稱
+    final response = await http.put(
+      Uri.parse(url),
+      headers: <String, String>{'Content-Type': 'application/json'},
+      // body: jsonEncode(content),
+    ); // 根據使用者的token新增資料
+
+    print('API 返回的內容: ${response.body}'); // 添加這行
+    final responseString = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      print('更改投票選項成功');
+      return [true, responseString];
+    } else {
+      print(responseString);
+      return [false, responseString];
+    }
+  }
+
   // 抓全部投票列表
   static Future<List<dynamic>> seletallVote(
       {required int eID}) async {
@@ -176,29 +198,35 @@ class APIservice {
     );
     final serverVote = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 400) {
-      for (var vote in serverVote) {
-        int endTimeInt = vote['endTime'];
-        final Vote newVoteData = Vote(
-            vID: vote['vID'],
-            eID: vote['eID'],
-            userMall: vote['userMall'],
-            voteName: vote['voteName'].toString(),
-            endTime: DateTime(
-                endTimeInt ~/ 100000000, // 年
-                (endTimeInt % 100000000) ~/ 1000000, // 月
-                (endTimeInt % 1000000) ~/ 10000, // 日
-                (endTimeInt % 10000) ~/ 100, // 小时
-                endTimeInt % 100 // 分钟
-                ),
-            singleOrMultipleChoice: vote['isChecked'] == 1);
-        Sqlite.insert(tableName: 'vote', insertData: newVoteData.toMap());
-      }
-      print('完成 刷新 sqlite 投票資料表');
-      return serverVote;
+      // for (var vote in serverVote) {
+      //   int endTimeInt = vote['endTime'];
+      //   final Vote newVoteData = Vote(
+      //       vID: vote['vID'],
+      //       eID: vote['eID'],
+      //       userMall: vote['userMall'],
+      //       voteName: vote['voteName'].toString(),
+      //       endTime: DateTime(
+      //           endTimeInt ~/ 100000000, // 年
+      //           (endTimeInt % 100000000) ~/ 1000000, // 月
+      //           (endTimeInt % 1000000) ~/ 10000, // 日
+      //           (endTimeInt % 10000) ~/ 100, // 小时
+      //           endTimeInt % 100 // 分钟
+      //           ),
+      //       singleOrMultipleChoice: vote['isChecked'] == 1);
+      //   Sqlite.insert(tableName: 'vote', insertData: newVoteData.toMap());
+      // }
+    //   print('完成 刷新 sqlite 投票資料表');
+    //   return serverVote;
+    // } else {
+    //   print('失敗 刷新 sqlite 投票資料表');
+    //   print('失敗 $serverVote response.statusCode ${response.statusCode}');
+    //   return serverVote;
+    // }
+    print('抓取投票選項成功');
+      return [true, serverVote];
     } else {
-      print('失敗 刷新 sqlite 投票資料表');
-      print('失敗 $serverVote response.statusCode ${response.statusCode}');
-      return serverVote;
+      print(serverVote);
+      return [false, serverVote];
     }
   }
 

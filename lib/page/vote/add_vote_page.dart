@@ -41,30 +41,30 @@ class _AddVotePageState extends State<AddVotePage> {
 }
 
 
-  Future<Vote?> getvoteDataFromDatabase(int vid) async {
-    List<Map<String, dynamic>>? queryResult = await Sqlite.queryRow(
-        tableName: 'vote', key: 'vID', value: vid.toString());
+  // Future<Vote?> getvoteDataFromDatabase(int vid) async {
+  //   List<Map<String, dynamic>>? queryResult = await Sqlite.queryRow(
+  //       tableName: 'vote', key: 'vID', value: vid.toString());
 
-    if (queryResult != null && queryResult.isNotEmpty) {
-      Map<String, dynamic> voteData = queryResult.first;
-      return Vote(
-        vID: voteData['vID'],
-        eID: voteData['eID'],
-        userMall: voteData['uID'],
-        voteName: voteData['voteName'],
-        endTime: DateTime(
-            voteData['endTime'] ~/ 100000000, // 年
-            (voteData['endTime'] % 100000000) ~/ 1000000, // 月
-            (voteData['endTime'] % 1000000) ~/ 10000, // 日
-            (voteData['endTime'] % 10000) ~/ 100, // 小时
-            voteData['endTime'] % 100 // 分钟
-            ),
-        singleOrMultipleChoice: voteData['singleOrMultipleChoice'] == 1,
-      );
-    } else {
-      return null;
-    }
-  }
+  //   if (queryResult != null && queryResult.isNotEmpty) {
+  //     Map<String, dynamic> voteData = queryResult.first;
+  //     return Vote(
+  //       vID: voteData['vID'],
+  //       eID: voteData['eID'],
+  //       userMall: voteData['userMall'],
+  //       voteName: voteData['voteName'],
+  //       endTime: DateTime(
+  //           voteData['endTime'] ~/ 100000000, // 年
+  //           (voteData['endTime'] % 100000000) ~/ 1000000, // 月
+  //           (voteData['endTime'] % 1000000) ~/ 10000, // 日
+  //           (voteData['endTime'] % 10000) ~/ 100, // 小时
+  //           voteData['endTime'] % 100 // 分钟
+  //           ),
+  //       singleOrMultipleChoice: voteData['singleOrMultipleChoice'] == 1,
+  //     );
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   @override
   void initState() {
