@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import '../model/vote.dart';
 
@@ -26,22 +25,41 @@ class VoteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteVote(int index) {
-    _votes.removeAt(index);
-    notifyListeners();
-  }
+  // void deleteVote(int index) {
+  //   _votes.removeAt(index);
+  //   notifyListeners();
+  // }
 
   void deleteVoteOptions(int index) {
     _votes.removeAt(index);
     notifyListeners();
   }
 
-  // void updateResult(VoteResult voteResult){
-  //   _result.update(voteResult);
-  //   notifyListeners();
+  // void deleteVote(int index) {
+  //   if (index >= 0 && index < _votes.length) {
+  //     _votes.removeAt(index);
+  //     notifyListeners();
+  //   } else {
+  //     // 處理索引不在有效範圍內的情況，例如輸出錯誤訊息或執行其他操作
+  //     print("Invalid index: $index");
+  //   }
+  // }
+  
+
+  // void deleteVoteOptions(int index) {
+  //   if (index >= 0 && index < _votes.length) {
+  //     _votes.removeAt(index);
+  //     notifyListeners();
+  //   } else {
+  //     // 處理索引不在有效範圍內的情況，例如輸出錯誤訊息或執行其他操作
+  //     print("Invalid index: $index");
+  //   }
   // }
 
-  void updateVote(VoteResult newVoteResult, VoteResult oldVoteResult,) {
+  void updateVote(
+    VoteResult newVoteResult,
+    VoteResult oldVoteResult,
+  ) {
     final index = _result.indexWhere((result) => result == oldVoteResult);
     print('updateVote called: $index');
 

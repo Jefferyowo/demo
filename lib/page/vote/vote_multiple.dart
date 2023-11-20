@@ -60,6 +60,7 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
             for (int i = 0; i < selectedOptions.length; i++) {
               selectedOptions[i] = selectedOptionIndexFromServer
                   .contains(widget.voteOptions[i].oID);
+              //print();    
             }
             print('抓投票結果成功: $selectedOptionIndexFromServer');
           });
@@ -142,7 +143,8 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                 List<int> selectedIndexes = [];
                 for (int i = 0; i < selectedOptions.length; i++) {
                   if (selectedOptions[i]) {
-                    selectedIndexes.add(widget.voteOptions[i].oID);
+                    selectedIndexes.add(i);
+                    //selectedIndexes.add(widget.voteOptions[i].oID);
                   }
                 }
 
@@ -150,7 +152,8 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                 if (selectedIndexes.isNotEmpty) {
                   // User has already voted, update the existing vote result(s)
                   List<int?> selectedOptionIDs = selectedIndexes
-                      .map((i) => widget.voteOptions[i].oID)
+                      //.where((i) => i >= 0 && i < widget.voteOptions.length)
+                      .map((index) => widget.voteOptions[index].oID)
                       .toList();
 
                   // Assuming only one option can be selected at a time for updating
@@ -165,6 +168,7 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                       vID: widget.vote.vID,
                       userMall: '1113',
                       oID: optionID,
+                      status: true,
                     );
                   }).toList();
 
@@ -200,18 +204,21 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
 
                 // Add new vote result(s) for the options that are newly selected
                 List<int?> newlySelectedOptionIDs = selectedIndexes
+                    //.where((i) => i >= 0 && i < widget.voteOptions.length)
                     .map((i) => widget.voteOptions[i].oID)
                     .where((optionID) => optionID != null)
                     .toList();
 
                 List<VoteResult> newVoteResults =
                     newlySelectedOptionIDs.map((optionID) {
+                      print(optionID);
                   return VoteResult(
                     voteResultID:
-                        0, // Set to an appropriate value or generate a unique ID
+                        1, // Set to an appropriate value or generate a unique ID
                     vID: widget.vote.vID,
-                    userMall: '1113',
+                    userMall: '1112',
                     oID: optionID,
+                    status: true
                   );
                 }).toList();
 

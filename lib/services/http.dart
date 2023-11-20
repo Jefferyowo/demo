@@ -226,6 +226,7 @@ class APIservice {
       return [true, serverVote];
     } else {
       print(serverVote);
+      print('抓取投票選項失敗');
       return [false, serverVote];
     }
   }

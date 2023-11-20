@@ -96,12 +96,14 @@ class VoteResult {
   final int? vID;
   final String? userMall;
   final int? oID;
+  final bool status;
 
   const VoteResult({
     required this.voteResultID,
     required this.vID,
     required this.userMall,
     required this.oID,
+    required this.status,
   });
 
   get start => null;
@@ -111,6 +113,7 @@ class VoteResult {
       'vID': vID,
       'userMall': userMall,
       'oID': oID,
+      'status': status ? 1: 0,
     };
   }
 }

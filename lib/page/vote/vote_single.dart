@@ -147,56 +147,7 @@ class _SingleVoteState extends State<SingleVote> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  // onPressed: () async {
-                  //   if (selectedOptionIndex != -1) {
-                  //     VoteResult voteResult = VoteResult(
-                  //       voteResultID: 1,
-                  //       vID: widget.vote.vID,
-                  //       userMall: '1113',
-                  //       oID: selectedOptionIndex,
-                  //     );
-
-                  //     try {
-                  //       final result = await APIservice.addVoteResult(
-                  //           content: voteResult.toMap());
-                  //       print('API 回傳結果: $result');
-
-                  //       if (result != null && result.isNotEmpty) {
-                  //         bool success = result[0];
-                  //         http.Response response = result[1];
-
-                  //         if (success && response.statusCode == 200) {
-                  //           // 投票結果成功新增至資料庫
-                  //           Provider.of<VoteProvider>(context, listen: false)
-                  //               .addVoteResult(voteResult);
-
-                  //           Navigator.pushReplacement(
-                  //             context,
-                  //             MaterialPageRoute(
-                  //               builder: (context) => VoteResultPage(
-                  //                 options: widget.voteOptions
-                  //                     .map((e) =>
-                  //                         e.votingOptionContent.join(", "))
-                  //                     .toList(),
-                  //                 voteName: widget.vote.voteName,
-                  //               ),
-                  //             ),
-                  //           );
-                  //         } else {
-                  //           // 投票結果新增失敗
-                  //           print('新增投票結果失敗');
-                  //           print('回應內容: ${response.body}');
-                  //           // 如果需要，您可以根据不同的状态码进行不同的处理
-                  //         }
-                  //       } else {
-                  //         // 如果返回的 result 为 null 或为空，也可进行相应处理
-                  //         print('API 回傳結果為空或無效');
-                  //       }
-                  //     } catch (e) {
-                  //       print('在新增投票結果時發生錯誤: $e');
-                  //     }
-                  //   }
-                  // }
+                  
                   onPressed: () async {
                     if (selectedOptionIndex != -1) {
                       // Check if the user has already voted
@@ -208,6 +159,7 @@ class _SingleVoteState extends State<SingleVote> {
                           vID: widget.vote.vID,
                           userMall: '1113',
                           oID: selectedOptionIndex,
+                          status: true,
                         );
 
                         try {
@@ -257,6 +209,7 @@ class _SingleVoteState extends State<SingleVote> {
                           vID: widget.vote.vID,
                           userMall: '1113',
                           oID: selectedOptionIndex,
+                          status: true,
                         );
 
                         try {

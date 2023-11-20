@@ -1,3 +1,4 @@
+import 'package:create_event2/page/vote/vote_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../model/vote.dart';
@@ -24,10 +25,12 @@ class VoteResultPage extends StatefulWidget {
 class _VoteResultPageState extends State<VoteResultPage> {
   @override
   Widget build(BuildContext context) {
-    // return Consumer<VoteProvider>(
-    //   builder: (context, voteProvider, child) {
-    //final voteOption = voteProvider.getVoteById(widget.originalVote.vID as String );
+    return Consumer<VoteProvider>(
+      builder: (context, voteProvider, child) {
+        // final List<int> optionVotes = voteProvider.voteOptions[widget.voteName] ?? [];
 
+        // Calculate total votes for each option
+        // final totalVotes = optionVotes.reduce((a, b) => a + b);
     // if (voteOption == null) {
     //   return Scaffold(
     //     appBar: AppBar(
@@ -47,8 +50,7 @@ class _VoteResultPageState extends State<VoteResultPage> {
     //   );
     // }
 
-    // 计算总票数
-    // final totalVotes = voteOption.optionVotes.reduce((a, b) => a + b);
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +63,8 @@ class _VoteResultPageState extends State<VoteResultPage> {
           IconButton(
             icon: Icon(Icons.close, color: Colors.black),
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/vote');
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => VotePage()));
             },
           ),
         ],
@@ -102,7 +105,8 @@ class _VoteResultPageState extends State<VoteResultPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   // subtitle: Text(
-                  //   '票数:  ${widget.optionVotes[index]}',
+                  //   'Votes: ${optionVotes[index]} / Total Votes: $totalVotes',
+                  //   // '票数:  ${widget.optionVotes[index]}',
                   //   // ${voteOption.optionVotes[index]}',
                   //   style:
                   //       TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
@@ -113,10 +117,9 @@ class _VoteResultPageState extends State<VoteResultPage> {
           ),
         ],
       ),
-      // ],
-      // ),
+      //],
+      //),
     );
   }
-  //);
-}
-//}
+  );
+}}
