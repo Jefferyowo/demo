@@ -35,7 +35,7 @@ class Vote {
     return Vote(
       vID: map['vID'],
       eID: map['eID'],
-      userMall: map['uID'],
+      userMall: map['userMall'],
       voteName: map['voteName'],
       endTime: endTime,
       singleOrMultipleChoice: map['singleOrMultipleChoice'] == 1,
@@ -46,7 +46,7 @@ class Vote {
     return {
       'vID': vID,
       'eID': eID,
-      'uID': userMall,
+      'userMall': userMall,
       'voteName': voteName,
       'endTime': endTime.year * 100000000 +
           endTime.month * 1000000 +
@@ -59,7 +59,7 @@ class Vote {
 }
 
 class VoteOption {
-  final int? oID;
+  final int oID;
   final int? vID;
   final List<String> votingOptionContent;
   // final List<int> optionVotes;
@@ -109,7 +109,7 @@ class VoteResult {
   Map<String, dynamic> toMap() {
     return {
       'vID': vID,
-      'uID': userMall,
+      'userMall': userMall,
       'oID': oID,
     };
   }

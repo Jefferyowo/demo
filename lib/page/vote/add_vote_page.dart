@@ -363,7 +363,7 @@ class _AddVotePageState extends State<AddVotePage> {
         // 创建一个代表整体投票的Vote对象    
         Vote vote = Vote(
           vID: 1,
-          eID: 1,
+          eID: 123,
           userMall: '1112',
           voteName: voteName,
           endTime: endTime,

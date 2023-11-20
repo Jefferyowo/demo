@@ -36,21 +36,18 @@ class VoteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateVote(Vote newVote, Vote oldVote, VoteOption newVoteOptions, VoteOption oldVoteOptions,) {
-    final index = _votes.indexWhere((vote) => vote == oldVote);
-    final index_options = _options.indexWhere((voteOption) => voteOption == oldVoteOptions);
+  // void updateResult(VoteResult voteResult){
+  //   _result.update(voteResult);
+  //   notifyListeners();
+  // }
+
+  void updateVote(VoteResult newVoteResult, VoteResult oldVoteResult,) {
+    final index = _result.indexWhere((result) => result == oldVoteResult);
     print('updateVote called: $index');
 
     if (index != -1) {
-      _votes[index] = newVote;
-      print('Vote updated: ${_votes[index]}');
-      notifyListeners();
-    } else {
-      print('Vote not found in the list');
-    }
-    if (index_options != -1) {
-      _options[index_options] = newVoteOptions;
-      print('Vote updated: ${_options[index]}');
+      _result[index] = newVoteResult;
+      print('Vote updated: ${_result[index]}');
       notifyListeners();
     } else {
       print('Vote not found in the list');

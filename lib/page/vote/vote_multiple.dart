@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../model/vote.dart';
 import '../../provider/vote_provider.dart';
 import '../../services/http.dart'; // 别忘了导入你的 Vote 类
+import 'package:http/http.dart' as http;
 
 class VoteCheckbox extends StatefulWidget {
   final Vote vote;
@@ -39,31 +40,35 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
       print('伺服器返回的結果: $result');
 
       if (result == null) {
-      print('伺服器回應為空');
-      return;
+        print('伺服器回應為空');
+        return;
       }
-      print('伺服器返回的結果類型: ${result.runtimeType}');
-
+      // 檢查伺服器回傳的結果是否是一個 List
       if (result is List) {
-        if (result.length >= 2 && result[1] is List && result[1].isNotEmpty && result[1][0] is Map) {
-        List<int> selectedOptionIndexFromServer = result[1].map((item) => item['oID']).cast<int>().toList();    
-        setState(() {
-          selectedOptions = List<bool>.filled(widget.voteOptions.length, false);
-          for (int index in selectedOptionIndexFromServer) {
-            if (index >= 0 && index < selectedOptions.length) {
-              selectedOptions[index] = true;
+        if (result.length >= 2 &&
+            result[1] is List &&
+            result[1].isNotEmpty &&
+            result[1][0] is Map) {
+          // 將伺服器返回的選項索引轉換為整數列表    
+          List<int> selectedOptionIndexFromServer =
+              result[1].map((item) => item['oID']).cast<int>().toList();
+          setState(() {
+            selectedOptions =
+                // 初始化與投票選項相同長度的 selectedOptions 列表，並將其所有值設為 false
+                List<bool>.filled(widget.voteOptions.length, false);
+            // 根據伺服器返回的選項索引列表，設置 selectedOptions 中對應的值    
+            for (int i = 0; i < selectedOptions.length; i++) {
+              selectedOptions[i] = selectedOptionIndexFromServer
+                  .contains(widget.voteOptions[i].oID);
             }
-          }
             print('抓投票結果成功: $selectedOptionIndexFromServer');
-        });
-      } else {
-        print('伺服器返回的結果不符合預期格式');
+          });
+        }
       }
-    } 
-  } catch (e) {
-    print('在 server 抓取投票結果時發生錯誤: $e');
+    } catch (e) {
+      print('在 server 抓取投票結果時發生錯誤: $e');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -133,45 +138,123 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                 ),
               ),
               onPressed: () async {
-                // 獲取選中的選項的索引
+                // Get the selected option indexes
                 List<int> selectedIndexes = [];
                 for (int i = 0; i < selectedOptions.length; i++) {
                   if (selectedOptions[i]) {
-                    selectedIndexes.add(i);
+                    selectedIndexes.add(widget.voteOptions[i].oID);
                   }
                 }
 
-                // 將選中的選項的 oID 放入投票結果對象
-                List<int?> selectedOptionIDs = selectedIndexes
-                    .map((index) => widget.voteOptions[index].oID)
+                // Check if the user has already voted
+                if (selectedIndexes.isNotEmpty) {
+                  // User has already voted, update the existing vote result(s)
+                  List<int?> selectedOptionIDs = selectedIndexes
+                      .map((i) => widget.voteOptions[i].oID)
+                      .toList();
+
+                  // Assuming only one option can be selected at a time for updating
+                  // int selectedOptionID = selectedOptionIDs[0] ?? 1;
+
+                  // Create a list of VoteResult objects for each selected option
+                  List<VoteResult> voteResults =
+                      selectedOptionIDs.map((optionID) {
+                    return VoteResult(
+                      voteResultID:
+                          1, // Use the appropriate voteResultID from your logic
+                      vID: widget.vote.vID,
+                      userMall: '1113',
+                      oID: optionID,
+                    );
+                  }).toList();
+
+                  try {
+                    // Use the appropriate API service method to update results for multiple options
+                    for (VoteResult result in voteResults) {
+                      final updateResult = await APIservice.updateResult(
+                        content: result.toMap(),
+                        voteResultID: 20,
+                      );
+
+                      // Handle the update result for each option here
+                      print('API 回傳結果: $updateResult');
+                    }
+
+                    // Navigate to the result page after handling all selected options
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VoteResultPage(
+                          options: widget.voteOptions
+                              .map((e) => e.votingOptionContent.join(", "))
+                              .toList(),
+                          voteName: widget.vote.voteName,
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    // Handle any errors that occur during the update process
+                    print('在更新投票結果時發生錯誤: $e');
+                  }
+                }
+
+                // Add new vote result(s) for the options that are newly selected
+                List<int?> newlySelectedOptionIDs = selectedIndexes
+                    .map((i) => widget.voteOptions[i].oID)
+                    .where((optionID) => optionID != null)
                     .toList();
 
-                VoteResult voteResult = VoteResult(
-                  voteResultID: 1,
-                  vID: widget.vote.vID,
-                  userMall: '1112',
-                  oID: selectedOptionIDs.isNotEmpty
-                      ? selectedOptionIDs[0]
-                      : 1, // 這裡取第一個選中的選項的 oID,
-                );
+                List<VoteResult> newVoteResults =
+                    newlySelectedOptionIDs.map((optionID) {
+                  return VoteResult(
+                    voteResultID:
+                        0, // Set to an appropriate value or generate a unique ID
+                    vID: widget.vote.vID,
+                    userMall: '1113',
+                    oID: optionID,
+                  );
+                }).toList();
 
-                final result = await APIservice.addVoteResult(
-                    content: voteResult.toMap()); // 新增投票結果進資料庫
+                try {
+                  // Use the appropriate API service method to add new vote results
+                  for (VoteResult newVoteResult in newVoteResults) {
+                    final result = await APIservice.addVoteResult(
+                      content: newVoteResult.toMap(),
+                    );
 
-                Provider.of<VoteProvider>(context, listen: false)
-                    .addVoteResult(voteResult);
+                    if (result != null && result.isNotEmpty) {
+                      bool success = result[0];
+                      http.Response response = result[1];
+
+                      if (success && response.statusCode == 200) {
+                        // New vote result successfully added to the database
+                        Provider.of<VoteProvider>(context, listen: false)
+                            .addVoteResult(newVoteResult);
+                      } else {
+                        // Handle the case where adding a new vote result fails
+                        print('新增投票結果失敗');
+                        print('回應內容: ${response.body}');
+                        // Handle different status codes if needed
+                      }
+                    }
+                  }
+                } catch (e) {
+                  // Handle any errors that occur while adding new vote results
+                  print('在新增投票結果時發生錯誤: $e');
+                }
+
+                // Navigate to the result page after handling both cases
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VoteResultPage(
-                        //optionVotes: optionVotes,
-                        options: widget.voteOptions
-                            .map((e) => e.votingOptionContent.join(", "))
-                            .toList(),
-                        voteName: widget.vote.voteName,
-                        //originalVote: widget.vote,
-                      ), // 修改这里
-                    ));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VoteResultPage(
+                      options: widget.voteOptions
+                          .map((e) => e.votingOptionContent.join(", "))
+                          .toList(),
+                      voteName: widget.vote.voteName,
+                    ),
+                  ),
+                );
               },
             ),
           ),

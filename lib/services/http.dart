@@ -164,13 +164,13 @@ class APIservice {
 
   // 更新投票結果
   static Future<List<dynamic>> updateResult(
-      {required int voteResultID}) async {
+      {required Map<String, dynamic> content, required int voteResultID}) async {
     String url =
         "http://163.22.17.145:3000/api/result/updateResult/$voteResultID"; //api後接檔案名稱
     final response = await http.put(
       Uri.parse(url),
       headers: <String, String>{'Content-Type': 'application/json'},
-      // body: jsonEncode(content),
+      body: jsonEncode(content),
     ); // 根據使用者的token新增資料
 
     print('API 返回的內容: ${response.body}'); // 添加這行
