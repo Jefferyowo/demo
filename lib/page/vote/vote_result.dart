@@ -8,14 +8,10 @@ import '../../services/http.dart';
 class VoteResultPage extends StatefulWidget {
   final String voteName; //
   final int vID;
-  //final List<String> options; // 投票選項的列表
-  //final List<int> optionVotes; // 投票選項的票數列表
 
   VoteResultPage({
     required this.voteName, // 投票問題的描述，必需的參數
     required this.vID,
-    //required this.options, // 投票選項的列表，必需的參數
-    //required this.optionVotes, // 投票選項的票數列表，必需的參數
   });
 
   @override
@@ -23,11 +19,8 @@ class VoteResultPage extends StatefulWidget {
 }
 
 class _VoteResultPageState extends State<VoteResultPage> {
-  late List<dynamic> _voteOptions = [];
-  List<int> _oIDtoCount = [];
-
-  List<Vote> voteTest = [];
-  List<VoteOption> voteOptionTest = [];
+  late List<dynamic> _voteOptions = [];// 存儲投票選項的資料
+  List<int> _oIDtoCount = []; // 存儲每個選項的投票數
 
   @override
   void initState(){
