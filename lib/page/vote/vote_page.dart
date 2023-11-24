@@ -222,7 +222,6 @@ class _VotePageState extends State<VotePage> {
                                 if (DateTime.now().isBefore(vote.endTime)) {
                                 // 根据投票类型导航到不同的投票页面
                                 if (vote.singleOrMultipleChoice) {
-                                  //print(vote.vID);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(

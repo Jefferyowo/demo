@@ -9,12 +9,10 @@ import '../../services/http.dart'; // 引入HTTP服務
 
 class SingleVote extends StatefulWidget {
   final Vote vote; // 投票對象
-  //final List<VoteOption> voteOptions; // 投票選項列表
 
   const SingleVote({
     Key? key,
     required this.vote,
-    //required this.voteOptions,
   }) : super(key: key);
 
   @override
@@ -54,10 +52,11 @@ class _SingleVoteState extends State<SingleVote> {
   getallResult() async {
       print("------------getallResult------------------");
       print(widget.vote.vID);
+      // 調用 APIservice 的方法獲取投票結果
       final result = await APIservice.seletallVoteResult(
           vID: widget.vote.vID, userMall: '1112'); // userMall要更改
       print('伺服器返回的結果: $result');
-
+      // 確保結果不為空且格式正確
       if (result != null && result.isNotEmpty) {
         if (result is List &&
             result.length == 2 &&
@@ -66,19 +65,21 @@ class _SingleVoteState extends State<SingleVote> {
             result[1][0] is Map) {
 
           int statusIsTrue_s_OID_s_Index = -1;
+          // 遍歷投票結果，查找 'status' 為 1 的選項
           for(int i = 0 ; i < result[1].length ; i++){
             if(result[1][i]['status'] == 1){
               statusIsTrue_s_OID_s_Index = i;
             }
           }
           print(statusIsTrue_s_OID_s_Index);
-
+          // 獲取伺服器返回的第一個選項的 oID
           int oIDFromServer = result[1][0]['oID'];
           print(result);
+          // 如果有選項 'status' 為 1，則更新 selectedOptionIndex
           if (statusIsTrue_s_OID_s_Index != -1) {
             setState(() {
               for (int i = 0; i < _voteOptions.length; i++) {
-                
+                // 查找投票選項中與伺服器返回的選項相符的索引
                 if (_voteOptions[i].oID == result[1][statusIsTrue_s_OID_s_Index]['oID']) {
                   selectedOptionIndex = i;
                 }

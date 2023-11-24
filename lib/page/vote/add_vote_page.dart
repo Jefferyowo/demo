@@ -370,9 +370,6 @@ class _AddVotePageState extends State<AddVotePage> {
         // 使用API service將整體的投票添加到數據庫
         final result =
             await APIservice.addVote(content: vote.toMap()); // 新增投票進資料庫
-        print(result[1]['vID']);
-
-
         // 獲取從後端傳回來的vID
         int newVID = result[1]['vID'];
         // 創建一個包含所有選項信息的VoteOption對象
@@ -399,7 +396,6 @@ class _AddVotePageState extends State<AddVotePage> {
         // 獲取新創建投票的所有選項
         final allOptionResult =
             await APIservice.seletallVoteOptions(vID: newVID);
-        print(allOptionResult);
         // 遍歷所有選項，創建VoteResult對象，表示投票結果
         for (int i = 0; i < allOptionResult[1].length; i++) {
           VoteResult voteResult = VoteResult(
