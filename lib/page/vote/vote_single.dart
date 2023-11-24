@@ -6,16 +6,15 @@ import 'package:provider/provider.dart';
 
 import '../../provider/vote_provider.dart'; // 引入投票提供者
 import '../../services/http.dart'; // 引入HTTP服務
-import 'package:http/http.dart' as http;
 
 class SingleVote extends StatefulWidget {
   final Vote vote; // 投票對象
-  final List<VoteOption> voteOptions; // 投票選項列表
+  //final List<VoteOption> voteOptions; // 投票選項列表
 
   const SingleVote({
     Key? key,
     required this.vote,
-    required this.voteOptions,
+    //required this.voteOptions,
   }) : super(key: key);
 
   @override
@@ -24,19 +23,39 @@ class SingleVote extends StatefulWidget {
 
 class _SingleVoteState extends State<SingleVote> {
   int selectedOptionIndex = -1; // 選中的選項索引
-  List<String> options = [''];
   late List<dynamic> _voteOptions = [];
 
   @override
   void initState() {
     super.initState();
-    getallResult();
+    getOption(); // 抓回選項內容
+    getallResult(); // 抓回投票結果
+  
   }
 
+  // 抓回選項內容
+  getOption() async {
+    print("-------------getOption-----------------");
+    print(widget.vote.vID);
+
+    final result = await APIservice.seletallVoteOptions(vID: widget.vote.vID);    
+    if (result[0]) {
+      setState(() {
+        _voteOptions = result[1].map((map) => VoteOption.fromMap(map)).toList();
+      });
+      print('voteOptions');
+      print(_voteOptions);
+    } else {
+      print('$result 在 server 抓取投票選項失敗');
+    }
+  }
+
+  // 抓回投票結果
   getallResult() async {
-    try {
+      print("------------getallResult------------------");
+      print(widget.vote.vID);
       final result = await APIservice.seletallVoteResult(
-          vID: widget.vote.vID, userMall: '1113'); //注意vID
+          vID: widget.vote.vID, userMall: '1112'); // userMall要更改
       print('伺服器返回的結果: $result');
 
       if (result != null && result.isNotEmpty) {
@@ -45,14 +64,27 @@ class _SingleVoteState extends State<SingleVote> {
             result[1] is List &&
             result[1].isNotEmpty &&
             result[1][0] is Map) {
-          int? selectedOptionIndexFromServer = result[1][0]['oID'];
-          if (selectedOptionIndexFromServer != null) {
+
+          int statusIsTrue_s_OID_s_Index = -1;
+          for(int i = 0 ; i < result[1].length ; i++){
+            if(result[1][i]['status'] == 1){
+              statusIsTrue_s_OID_s_Index = i;
+            }
+          }
+          print(statusIsTrue_s_OID_s_Index);
+
+          int oIDFromServer = result[1][0]['oID'];
+          print(result);
+          if (statusIsTrue_s_OID_s_Index != -1) {
             setState(() {
-              selectedOptionIndex = selectedOptionIndexFromServer;
-              print('抓投票結果成功: $selectedOptionIndexFromServer');
+              for (int i = 0; i < _voteOptions.length; i++) {
+                
+                if (_voteOptions[i].oID == result[1][statusIsTrue_s_OID_s_Index]['oID']) {
+                  selectedOptionIndex = i;
+                }
+              }
+              print('抓投票結果成功: $selectedOptionIndex');
             });
-          } else {
-            print('伺服器返回的 oID 為空');
           }
         } else {
           // 顯示未投票的提示，並將 selectedOptionIndex 設置為一個無效值
@@ -62,21 +94,10 @@ class _SingleVoteState extends State<SingleVote> {
           print('未投票');
         }
       }
-    } catch (e) {
-      print('在 server 抓取投票結果時發生錯誤: $e');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 如果沒有有效的投票選項，顯示提示信息
-    if (widget.voteOptions.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('投票')),
-        body: const Center(child: Text('没有可用的投票选项')),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('投票', style: TextStyle(color: Colors.black)),
@@ -103,15 +124,14 @@ class _SingleVoteState extends State<SingleVote> {
                       fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.voteOptions.length,
+              
+              ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _voteOptions.length,
                   itemBuilder: (context, index) {
-                    String optionText = widget
-                        .voteOptions[index].votingOptionContent
-                        .join(", ");
+                    String optionText =
+                        _voteOptions[index].votingOptionContent.join(", ");
 
-                    
                     return RadioListTile(
                       title: Text(
                         optionText,
@@ -128,7 +148,7 @@ class _SingleVoteState extends State<SingleVote> {
                     );
                   },
                 ),
-              ),
+              
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
@@ -147,112 +167,58 @@ class _SingleVoteState extends State<SingleVote> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  
                   onPressed: () async {
-                    if (selectedOptionIndex != -1) {
-                      // Check if the user has already voted
-                      if (selectedOptionIndex != -1) {
-                        // User has already voted, update the existing vote result
-                        VoteResult voteResult = VoteResult(
-                          voteResultID:
-                              1, // Use the appropriate voteResultID from your logic
-                          vID: widget.vote.vID,
-                          userMall: '1113',
-                          oID: selectedOptionIndex,
-                          status: true,
-                        );
-
-                        try {
-                          final result = await APIservice.updateResult(
-                              content: voteResult.toMap(), voteResultID: 15);
-                          print('API 回傳結果: $result');
-
-                          if (result != null && result.isNotEmpty) {
-                            bool success = result[0];
-                            http.Response response = result[1];
-
-                            if (success && response.statusCode == 200) {
-                              // VoteResult result successfully updated in the database
-                              // Provider.of<VoteProvider>(context, listen: false)
-                              //     .updateVote(voteResult);
-
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => VoteResultPage(
-                                    options: widget.voteOptions
-                                        .map((e) =>
-                                            e.votingOptionContent.join(", "))
-                                        .toList(),
-                                    voteName: widget.vote.voteName,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // Update vote result failed
-                              print('更新投票結果失敗');
-                              print('回應內容: ${response.body}');
-                              // Handle different status codes if needed
-                            }
-                          } else {
-                            // If the result is null or empty, handle accordingly
-                            print('API 回傳結果為空或無效');
-                          }
-                        } catch (e) {
-                          print('在更新投票結果時發生錯誤: $e');
-                        }
-                      } else {
-                        // User hasn't voted, add a new vote result
-                        VoteResult voteResult = VoteResult(
-                          voteResultID:
-                              0, // Set to an appropriate value, or generate a unique ID
-                          vID: widget.vote.vID,
-                          userMall: '1113',
-                          oID: selectedOptionIndex,
-                          status: true,
-                        );
-
-                        try {
-                          final result = await APIservice.addVoteResult(
-                              content: voteResult.toMap());
-                          print('API 回傳結果: $result');
-
-                          if (result != null && result.isNotEmpty) {
-                            bool success = result[0];
-                            http.Response response = result[1];
-
-                            if (success && response.statusCode == 200) {
-                              // New vote result successfully added to the database
-                              Provider.of<VoteProvider>(context, listen: false)
-                                  .addVoteResult(voteResult);
-
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => VoteResultPage(
-                                    options: widget.voteOptions
-                                        .map((e) =>
-                                            e.votingOptionContent.join(", "))
-                                        .toList(),
-                                    voteName: widget.vote.voteName,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // Add new vote result failed
-                              print('新增投票結果失敗');
-                              print('回應內容: ${response.body}');
-                              // Handle different status codes if needed
-                            }
-                          } else {
-                            // If the result is null or empty, handle accordingly
-                            print('API 回傳結果為空或無效');
-                          }
-                        } catch (e) {
-                          print('在新增投票結果時發生錯誤: $e');
-                        }
-                      }
+                    if (selectedOptionIndex == -1) {
+                      print('請選擇一個選項');
+                      return;
                     }
+                    String tmpUserMail = '1112'; //這裡要更改為使用者的userMall
+                    print(widget.vote.vID);
+                    print(tmpUserMail);
+                    final tmpResult = await APIservice.seletallVoteResult(
+                        vID: widget.vote.vID, userMall: tmpUserMail);
+                    int tmpVoteResultID = -1;
+                    Map<String, dynamic> content;
+                    print(_voteOptions);
+                    // 遍歷所有投票選項，準備更新結果
+                    for (int i = 0; i < _voteOptions.length; i++) {
+                      // 根據選中的選項更新投票結果內容
+                      if (tmpResult[1][i]["oID"] ==
+                          _voteOptions[selectedOptionIndex].oID) {
+                        content = {
+                          'vID': widget.vote.vID,
+                          'oID': tmpResult[1][i]["oID"],
+                          'userMall': tmpUserMail,
+                          'status': 1, // 選中的選項設置為已投票
+                        };
+                      } else {
+                        content = {
+                          'vID': widget.vote.vID,
+                          'oID': tmpResult[1][i]["oID"],
+                          'userMall': tmpUserMail,
+                          'status': 0, // 未選中的選項設置為未投票
+                        };
+                      }
+                      // 更新投票結果
+                        final result = await APIservice.updateResult(
+                            content: content,
+                            voteResultID: tmpResult[1][i]["voteResultID"]);
+                        int tmpOid =
+                            tmpResult[1][i]["oID"];
+                        if (result[0]) {
+                          print('更改$tmpOid結果成功');
+                          
+                        } else {
+                          print('更改$tmpOid結果失敗');
+                        }
+                    }
+                    // 跳轉頁面到投票結果
+                    Navigator.push (
+                            context, MaterialPageRoute(builder: (context) => 
+                            VoteResultPage(
+                              voteName: widget.vote.voteName,
+                              vID: widget.vote.vID,
+                              )));
                   },
                 ),
               ),

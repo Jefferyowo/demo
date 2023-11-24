@@ -11,10 +11,8 @@ import '../../model/vote.dart';
 import '../../services/sqlite.dart';
 
 class VotePage extends StatefulWidget {
-  //final Vote vote; // 投票對象
   const VotePage({
     Key? key,
-    //required this.vote,
   }) : super(key: key);
 
   @override
@@ -25,63 +23,28 @@ class _VotePageState extends State<VotePage> {
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
   bool isChecked = false;
-  List<String> options = [''];
-  List<int> optionVotes = []; // 票數
-
-  // late Vote _currentVote;
+  //List<String> options = [''];
+  
   late List<dynamic> _votes = [];
-  late List<dynamic> _voteOptions = [];
+  //late List<dynamic> _voteOptions = [];
 
   List<Vote> voteTest = [];
-  List<VoteOption> voteOptionTest = [];
+  //List<VoteOption> voteOptionTest = [];
 
   @override
   void initState() {
     super.initState();
     endTime = DateTime.now();
     getallVote();
-    getallVoteOption();
-    //getVoteDate();
-    //getVoteOptionDate();
-    
   }
-  // 抓投票列表資料庫
-  // getVoteDate() async {
-  //   await Sqlite.open; //開啟資料庫
-  //   List? queryVoteTable = await Sqlite.queryAll(tableName: 'vote');
-  //   queryVoteTable ??= [];
-  //   setState(() {
-  //     voteTest = queryVoteTable!.map((e) => Vote.fromMap(e)).toList();
-  //   });
-  //   // for (var element in queryVoteTable) {
-  //   //   print(element);
-  //   // }
-  //   print(voteTest);
-  //   print('抓投票列表資料庫成功');
-  //   return queryVoteTable;
-  // }
 
-  // 抓投票選項資料庫
-  // getVoteOptionDate() async {
-  //   await Sqlite.open; //開啟資料庫
-  //   List? queryVoteOptionTable = await Sqlite.queryAll(tableName: 'voteOption');
-  //   queryVoteOptionTable ??= [];
-  //   setState(() {
-  //     voteOptionTest = queryVoteOptionTable!.map((e) => VoteOption.fromMap(e)).toList();
-  //   });
-  //   // for (var element in queryVoteOptionTable) {
-  //   //   print(element);
-  //   // }
-  //   print(voteOptionTest);
-  //   return queryVoteOptionTable;
-  // }
-
+  // 抓投票資料表的資料
   getallVote() async {
     String voteName = questionController.text;
     Vote vote = Vote(
       vID: 1,
       eID: 1,
-      userMall: '1112',
+      userMall: '1112', // 這裡要根據使用者的userMall
       voteName: voteName,
       endTime: endTime,
       singleOrMultipleChoice: isChecked,
@@ -92,53 +55,16 @@ class _VotePageState extends State<VotePage> {
     print(result[1]);
     if (result[0]) {
       setState(() {
+        // 將從數據庫中獲取的Map列表轉換為Vote對象列表
         _votes = result[1].map((map) => Vote.fromMap(map)).toList();
-        for (int i = 0 ;i < _votes.length ; i++){
-          print('----------------------');
-          print(_votes[i]);
-        }
+        print('抓取投票成功: $result' );
       });
     } else {
       print('$result 在 server 抓取投票失敗');
     }
-    //Provider.of<VoteProvider>(context, listen: false).addVote(vote);
-    
   }
 
-  getallVoteOption() async {
-    VoteOption voteOption = VoteOption(
-      oID: 1,
-      vID: 1112,
-      votingOptionContent: options,
-    );
-    final result = await APIservice.seletallVoteOptions(vID: 123);
-    final List<VoteOption> test = [];
-    print('getallVoteOption');
-    print(result[1]);
-
-    for (var map in result[1]) {
-      test.add(VoteOption.fromMap(map));
-    }
-
-    // vid:115,votingOptionContent: B,N,M
-    // print('result[1][2]');
-    // print(result[1][2]);
-    if (result[0]) {
-      setState(() {
-        _voteOptions = result[1].map((map) => VoteOption.fromMap(map)).toList();
-      });
-      print('voteOptions');
-      print(_voteOptions);
-    } else {
-      print('$result 在 server 抓取投票選項失敗');
-    }
-    Provider.of<VoteProvider>(context, listen: false)
-        .addVoteOptions(voteOption);
-  }
-
-  
-
-  Future<void> _confirmDeleteDialog(BuildContext context, int index,Vote voteTest) async {
+  Future<void> _confirmDeleteDialog(BuildContext context, int index,Vote voteTest) async {// 11/20 更改--增加Vote voteTest
     final voteProvider = Provider.of<VoteProvider>(context, listen: false);
 
     // 返回一个对话框
@@ -155,40 +81,20 @@ class _VotePageState extends State<VotePage> {
               onPressed: () async {
                 // 调用API service删除投票和相关选项
                 final List result =
-                    await APIservice.deleteVote(vID: voteTest.vID); // 刪除資料庫
+                    await APIservice.deleteVote(vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票
                 final List result1 =
-                    await APIservice.deleteVoteOptions(vID: voteTest.vID); // 刪除資料庫
+                    await APIservice.deleteVoteOptions(vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票選項
                 print(result[0]);
                 if (result[0]) {
-                  // var result = await Sqlite.deleteJourney(
-                  //   tableName: 'journey',
-                  //   tableIdName: 'jid',
-                  //   deleteId: _currentEvent.jID ?? 0,
-                  // );
-                  // Navigator.pushNamedAndRemoveUntil(
-                  //   context,
-                  //   '/MyBottomBar2',
-                  //   ModalRoute.withName('/'),
-                  // );
-                  
+                  print('在server刪除投票成功');
                 } else {
                   print('在server刪除投票失敗');
                 }
-                // if (result1[0]) {
-                //   // Navigator.pushNamedAndRemoveUntil(
-                //   //   context,
-                //   //   '/',
-                //   //   ModalRoute.withName('/'),
-                //   // );
-                  
-                // } else {
-                //   print('在server刪除投票選項失敗');
-                // }
-                // 从Provider中删除投票
-                //voteProvider.deleteVote(index);
-
-                
-
+                if (result1[0]) {
+                  print('在server刪除投票選項成功');
+                } else {
+                  print('在server刪除投票選項失敗');
+                }
                 Navigator.of(context).pop();
               },
             ),
@@ -220,7 +126,7 @@ class _VotePageState extends State<VotePage> {
           },
         ),
         actions: <Widget>[
-          IconButton(
+          IconButton( // 新增投票
             icon: Icon(Icons.add, color: Colors.black),
             onPressed: () async {
               final result = await Navigator.push(
@@ -228,12 +134,7 @@ class _VotePageState extends State<VotePage> {
                 MaterialPageRoute(
                   builder: (context) => AddVotePage(),
                 ),
-              ).then((value) {
-                setState(() {
-                  
-                });
-              });
-
+              );
               if (result != null && result is Vote) {
                 voteProvider.addVote(result);
               }
@@ -252,22 +153,8 @@ class _VotePageState extends State<VotePage> {
           ),
           ListView.builder(
             itemCount: _votes.length,
-
-            // itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
-              final voteTest = _votes[index];
-              if (_votes.isEmpty || _voteOptions.isEmpty) {
-                return Container(
-                  child: Text("列表為空"),
-                );
-              }
-
               final vote = _votes[index];
-              //final vote = voteProvider.votes[index];
-
-              final voteOption = _voteOptions[index];
-              //final voteOption = voteProvider.voteoptions[index];
-              //final voteResult = _voteResults[index];
               return Container(
                 margin: EdgeInsets.all(20.0),
                 padding: EdgeInsets.all(25.0),
@@ -331,17 +218,19 @@ class _VotePageState extends State<VotePage> {
                               ),
                             ),
                             onPressed: () {
-                               // 根據投票的截止時間檢查是否可以進行投票
-                              if (DateTime.now().isBefore(vote.endTime)) {
+                               // 根據投票的截止時間檢查是否可以進行投票                              
+                                if (DateTime.now().isBefore(vote.endTime)) {
                                 // 根据投票类型导航到不同的投票页面
                                 if (vote.singleOrMultipleChoice) {
+                                  //print(vote.vID);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
+                                      // 多選
                                       builder: (context) => VoteCheckbox(
                                         vote: vote,
-                                        voteOptions:
-                                            _voteOptions.cast<VoteOption>(),
+                                        // voteOptions:
+                                        //     _voteOptions.cast<VoteOption>(),   
                                       ),
                                     ),
                                   );
@@ -349,12 +238,11 @@ class _VotePageState extends State<VotePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
+                                      // 單選
                                       builder: (context) => SingleVote(
                                         vote: vote,
-                                        voteOptions: _voteOptions
-                                            .cast<VoteOption>(), // 這裡進行轉換
-
-                                        //as VoteOption,
+                                        // voteOptions: _voteOptions
+                                        //     .cast<VoteOption>(), // 這裡進行轉換  
                                       ),
                                     ),
                                   );
@@ -370,9 +258,10 @@ class _VotePageState extends State<VotePage> {
                             },
                           ),
                           IconButton(
+                            // 刪除投票
                             icon: Icon(Icons.delete),
                             onPressed: () {
-                              _confirmDeleteDialog(context, index,voteTest);
+                              _confirmDeleteDialog(context, index,vote);//11/20 更改
                             },
                           ),
                         ],

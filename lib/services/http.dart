@@ -167,6 +167,8 @@ class APIservice {
       {required Map<String, dynamic> content, required int voteResultID}) async {
     String url =
         "http://163.22.17.145:3000/api/result/updateResult/$voteResultID"; //api後接檔案名稱
+    print("---------------SQL-------------");
+    print(content);
     final response = await http.put(
       Uri.parse(url),
       headers: <String, String>{'Content-Type': 'application/json'},
@@ -174,13 +176,35 @@ class APIservice {
     ); // 根據使用者的token新增資料
 
     print('API 返回的內容: ${response.body}'); // 添加這行
-    final responseString = jsonDecode(response.body);
+    final responseString = response.body;
     if (response.statusCode == 200 || response.statusCode == 400) {
       print('更改投票選項成功');
       return [true, responseString];
     } else {
       print(responseString);
       return [false, responseString];
+    }
+  }
+
+  // 計算投票總票數
+  static Future<List<dynamic>> countVote(
+      {required int oID}) async {
+    final url =
+        Uri.parse("http://163.22.17.145:3000/api/result/count/$oID");    
+    final response = await http.post(
+      url,
+      headers: <String, String>{'Content-Type': 'application/json'},
+      //body: jsonEncode(content),
+    );
+    final serverVote = jsonDecode(response.body);
+    print(serverVote);
+    if (response.statusCode == 200 || response.statusCode == 400) {
+    print('計算投票總票數成功');
+      return [true, serverVote];
+    } else {
+      print(serverVote);
+      print('計算投票總票數失敗');
+      return [false, serverVote];
     }
   }
 
@@ -274,7 +298,6 @@ class APIservice {
       {required int vID, required String userMall}) async {
     final url =
         Uri.parse("http://163.22.17.145:3000/api/result/getAllResult/$vID/$userMall");
-
     final response = await http.post(
       url,
       headers: <String, String>{'Content-Type': 'application/json'},
