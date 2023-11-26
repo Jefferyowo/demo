@@ -1,5 +1,6 @@
 import 'package:create_event2/page/vote/add_vote_page.dart';
 import 'package:create_event2/page/vote/vote_multiple.dart';
+import 'package:create_event2/page/vote/vote_result.dart';
 import 'package:create_event2/page/vote/vote_single.dart';
 import 'package:create_event2/provider/vote_provider.dart';
 import 'package:create_event2/page/vote/voteList.dart';
@@ -11,6 +12,8 @@ import '../../model/vote.dart';
 import '../../services/sqlite.dart';
 
 class VotePage extends StatefulWidget {
+
+
   const VotePage({
     Key? key,
   }) : super(key: key);
@@ -167,7 +170,9 @@ class _VotePageState extends State<VotePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VoteList(),
+                              builder: (context) => VoteResultPage( // 11/26 增加跳轉至結果頁面
+                                voteName: vote.voteName, 
+                                vID: vote.vID)
                             ),
                           );
                         },
@@ -223,9 +228,7 @@ class _VotePageState extends State<VotePage> {
                                     MaterialPageRoute(
                                       // 多選
                                       builder: (context) => VoteCheckbox(
-                                        vote: vote,
-                                        // voteOptions:
-                                        //     _voteOptions.cast<VoteOption>(),   
+                                        vote: vote,   
                                       ),
                                     ),
                                   );
@@ -236,13 +239,12 @@ class _VotePageState extends State<VotePage> {
                                       // 單選
                                       builder: (context) => SingleVote(
                                         vote: vote,
-                                        // voteOptions: _voteOptions
-                                        //     .cast<VoteOption>(), // 這裡進行轉換  
                                       ),
                                     ),
                                   );
                                 }
                               } else {
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   // 截止時間已過，不允許進行投票
                                   SnackBar(

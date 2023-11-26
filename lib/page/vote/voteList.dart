@@ -4,7 +4,19 @@ import 'package:provider/provider.dart';
 import '../../model/vote.dart';
 import '../../provider/vote_provider.dart';
 
-class VoteList extends StatelessWidget {
+class VoteList extends StatefulWidget {
+  final Vote vote;
+
+  const VoteList({
+    Key? key,
+    required this.vote,
+  }) : super(key: key);
+
+  @override
+  State<VoteList> createState() => _VoteListState();
+}
+
+class _VoteListState extends State<VoteList> {
   @override
   Widget build(BuildContext context) {
     return Consumer<VoteProvider>(
@@ -24,26 +36,12 @@ class VoteList extends StatelessWidget {
           body: ListView.builder(
             itemCount: voteProvider.votes.length,
             itemBuilder: (context, index) {
-              final vote = voteProvider.votes[index];
-              // final totalVotes =
-              //     vote.optionVotes.reduce((a, b) => a + b); // 计算投票总数
-
               return ListTile(
-                title: Text(vote.voteName,style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),),
-                // subtitle: Text('投票總數: $totalVotes'), // 显示投票总数
-                onTap: () {
-                  // 处理点击事件，比如导航到投票详情页面
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => 
-                  //     VoteResult(
-                  //       originalVote: vote, // 传递对应的 Vote 对象
-                  //     ),
-                  //   ),
-                  // );
-                },
+                title: Text(
+                  widget.vote.voteName,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               );
             },
           ),
