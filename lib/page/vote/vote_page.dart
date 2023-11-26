@@ -12,8 +12,6 @@ import '../../model/vote.dart';
 import '../../services/sqlite.dart';
 
 class VotePage extends StatefulWidget {
-
-
   const VotePage({
     Key? key,
   }) : super(key: key);
@@ -26,7 +24,7 @@ class _VotePageState extends State<VotePage> {
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
   bool isChecked = false;
-  
+
   late List<dynamic> _votes = [];
   List<Vote> voteTest = [];
 
@@ -48,22 +46,24 @@ class _VotePageState extends State<VotePage> {
       endTime: endTime,
       singleOrMultipleChoice: isChecked,
     );
-    
-    final result = await APIservice.seletallVote(eID: 123);// 這裡要抓聊天室ID
+
+    final result = await APIservice.seletallVote(eID: 123); // 這裡要抓聊天室ID
     print('getallVote');
     print(result[1]);
     if (result[0]) {
       setState(() {
         // 將從數據庫中獲取的Map列表轉換為Vote對象列表
         _votes = result[1].map((map) => Vote.fromMap(map)).toList();
-        print('抓取投票成功: $result' );
+        print('抓取投票成功: $result');
       });
     } else {
       print('$result 在 server 抓取投票失敗');
     }
   }
 
-  Future<void> _confirmDeleteDialog(BuildContext context, int index,Vote voteTest) async {// 11/20 更改--增加Vote voteTest
+  Future<void> _confirmDeleteDialog(
+      BuildContext context, int index, Vote voteTest) async {
+    // 11/20 更改--增加Vote voteTest
     final voteProvider = Provider.of<VoteProvider>(context, listen: false);
 
     // 返回一个对话框
@@ -79,10 +79,10 @@ class _VotePageState extends State<VotePage> {
               child: Text('是'),
               onPressed: () async {
                 // 调用API service删除投票和相关选项
-                final List result =
-                    await APIservice.deleteVote(vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票
-                final List result1 =
-                    await APIservice.deleteVoteOptions(vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票選項
+                final List result = await APIservice.deleteVote(
+                    vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票
+                final List result1 = await APIservice.deleteVoteOptions(
+                    vID: voteTest.vID); // 11/20 更改--可根據vid刪除投票選項
                 print(result[0]);
                 if (result[0]) {
                   print('在server刪除投票成功');
@@ -125,7 +125,8 @@ class _VotePageState extends State<VotePage> {
           },
         ),
         actions: <Widget>[
-          IconButton( // 新增投票
+          IconButton(
+            // 新增投票
             icon: Icon(Icons.add, color: Colors.black),
             onPressed: () async {
               final result = await Navigator.push(
@@ -170,10 +171,10 @@ class _VotePageState extends State<VotePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VoteResultPage( // 11/26 增加跳轉至結果頁面
-                                voteName: vote.voteName, 
-                                vID: vote.vID)
-                            ),
+                                builder: (context) => VoteResultPage(
+                                    // 11/26 增加跳轉至結果頁面
+                                    voteName: vote.voteName,
+                                    vID: vote.vID)),
                           );
                         },
                         child: Container(
@@ -209,8 +210,8 @@ class _VotePageState extends State<VotePage> {
                                     BorderRadius.circular(30), // 设置按钮的圆角
                               ),
                             ),
-                            child: const Text(
-                              "投票",
+                            child: Text(
+                              DateTime.now().isBefore(vote.endTime)? "投票": "查看結果",// 時間到會將文字改成查看結果
                               style: TextStyle(
                                 color: Colors.black, // 设置文本颜色
                                 fontSize: 15, // 设置字体大小
@@ -219,8 +220,8 @@ class _VotePageState extends State<VotePage> {
                               ),
                             ),
                             onPressed: () {
-                               // 根據投票的截止時間檢查是否可以進行投票                              
-                                if (DateTime.now().isBefore(vote.endTime)) {
+                              // 根據投票的截止時間檢查是否可以進行投票
+                              if (DateTime.now().isBefore(vote.endTime)) {
                                 // 根据投票类型导航到不同的投票页面
                                 if (vote.singleOrMultipleChoice) {
                                   Navigator.push(
@@ -228,7 +229,7 @@ class _VotePageState extends State<VotePage> {
                                     MaterialPageRoute(
                                       // 多選
                                       builder: (context) => VoteCheckbox(
-                                        vote: vote,   
+                                        vote: vote,
                                       ),
                                     ),
                                   );
@@ -244,13 +245,13 @@ class _VotePageState extends State<VotePage> {
                                   );
                                 }
                               } else {
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  // 截止時間已過，不允許進行投票
-                                  SnackBar(
-                                    content: Text('投票已截止，不允許進行投票。'),
-                                  ),
-                                );
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => VoteResultPage( //結果頁面
+                                              voteName: vote.voteName,
+                                              vID: vote.vID,
+                                            )));
                               }
                             },
                           ),
@@ -258,7 +259,8 @@ class _VotePageState extends State<VotePage> {
                             // 刪除投票
                             icon: Icon(Icons.delete),
                             onPressed: () {
-                              _confirmDeleteDialog(context, index,vote);//11/20 更改
+                              _confirmDeleteDialog(
+                                  context, index, vote); //11/20 更改
                             },
                           ),
                         ],
