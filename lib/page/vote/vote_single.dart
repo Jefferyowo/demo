@@ -132,7 +132,7 @@ class _SingleVoteState extends State<SingleVote> {
                   itemBuilder: (context, index) {
                     String optionText =
                         _voteOptions[index].votingOptionContent.join(", ");
-
+                    
                     return RadioListTile(
                       title: Text(
                         optionText,
@@ -175,10 +175,9 @@ class _SingleVoteState extends State<SingleVote> {
                     }
                     String tmpUserMail = '1112'; //這裡要更改為使用者的userMall
                     print(widget.vote.vID);
-                    print(tmpUserMail);
                     final tmpResult = await APIservice.seletallVoteResult(
                         vID: widget.vote.vID, userMall: tmpUserMail);
-                    int tmpVoteResultID = -1;
+                    
                     Map<String, dynamic> content;
                     print(_voteOptions);
                     // 遍歷所有投票選項，準備更新結果

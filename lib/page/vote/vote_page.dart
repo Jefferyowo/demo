@@ -23,13 +23,9 @@ class _VotePageState extends State<VotePage> {
   TextEditingController questionController = TextEditingController();
   late DateTime endTime;
   bool isChecked = false;
-  //List<String> options = [''];
   
   late List<dynamic> _votes = [];
-  //late List<dynamic> _voteOptions = [];
-
   List<Vote> voteTest = [];
-  //List<VoteOption> voteOptionTest = [];
 
   @override
   void initState() {

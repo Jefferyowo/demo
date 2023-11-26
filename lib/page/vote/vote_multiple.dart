@@ -7,12 +7,10 @@ import '../../services/http.dart'; // 别忘了导入你的 Vote 类
 
 class VoteCheckbox extends StatefulWidget {
   final Vote vote;
-  //final List<VoteOption> voteOptions;
 
   VoteCheckbox({
     Key? key,
     required this.vote,
-    //required this.voteOptions,
   }) : super(key: key);
 
   @override
@@ -20,37 +18,35 @@ class VoteCheckbox extends StatefulWidget {
 }
 
 class _VoteCheckboxState extends State<VoteCheckbox> {
-  int selectedOptionIndex = -1; // 選中的選項索引
-  List<bool> selectedOptions = []; // 存储每个选项是否被选中的列表
-  //List<int> optionVotes = []; // 存储每个选项的投票数量
+  late List<bool> selectedOptionIndex = []; // 儲存每個選項是否被選中
 
   late List<dynamic> _voteOptions = [];
 
   @override
   void initState() {
     super.initState();
-    getOption();
-    //getallResults();
+    getOption(); // 抓回選項內容
+    getallResults(); // 抓回投票結果頁面
   }
 
   // 抓回選項內容
   getOption() async {
-    print("-------------getOption-----------------");
-    print(widget.vote.vID);
-
+    // 調用API服務，獲取投票選項
     final result = await APIservice.seletallVoteOptions(vID: widget.vote.vID);
     if (result[0]) {
+      // 如果成功，更新狀態並將投票選項映射為對應的對象列表
       setState(() {
         _voteOptions = result[1].map((map) => VoteOption.fromMap(map)).toList();
+        // 根據投票選項的數量動態生成 selectedOptionIndex 列表，並初始化為 false
+        selectedOptionIndex = List.generate(_voteOptions.length, (index) => false);
       });
-      print('voteOptions');
-      print(_voteOptions);
     } else {
       print('$result 在 server 抓取投票選項失敗');
     }
   }
-
+  // 抓回投票結果頁面
   getallResults() async {
+    // 從伺服器獲取投票結果
     final result = await APIservice.seletallVoteResult(
         vID: widget.vote.vID, userMall: '1112'); // userMall要更改
     print('伺服器返回的結果: $result');
@@ -61,15 +57,27 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
           result[1] is List &&
           result[1].isNotEmpty &&
           result[1][0] is Map) {
-        // 將伺服器返回的選項索引轉換為整數列表
-        List<int> statisValues =
-            result[1].map((item) => item['status']).cast<int>().toList();
-        // List<int> selectedOptionIndexFromServer =
-        //     result[1].map((item) => item['oID']).cast<int>().toList();
+        // 根據投票選項的數量動態生成 selectedOptionIndex 列表，並初始化為 false
         setState(() {
-          print('抓投票結果成功: $statisValues');
+          selectedOptionIndex = List.generate(_voteOptions.length, (index) => false);
         });
-      }
+        // 遍歷伺服器返回的投票結果
+        for(int i = 0; i <result[1].length; i++){
+          // 檢查投票結果中 'status' 是否為 1
+          if (result[1][i]['status'] == 1){
+            // 從伺服器返回的投票結果中獲取 oID
+            int oIDFromServer = result[1][i]['oID'];
+
+            // 在投票選項中查找與伺服器返回的 oID 相符的索引
+            int indexInOptions = _voteOptions.indexWhere((option) => option.oID == oIDFromServer);
+            // 如果找到相符的索引，則將對應的 selectedOptionIndex 設置為 true
+            if (indexInOptions != -1){
+              selectedOptionIndex[indexInOptions] = true;
+            }
+          }
+        }
+        print('抓投票結果成功: $selectedOptionIndex');
+        }
     }
   }
 
@@ -98,25 +106,17 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
               itemBuilder: (context, index) {
                 String optionText =
                     _voteOptions[index].votingOptionContent.join(", ");
-
                 return CheckboxListTile(
                     controlAffinity: ListTileControlAffinity.leading,
                     title: Text(
                       optionText,
-                      //'${widget.voteOptions.votingOptionContent[index]} (${optionVotes[index]})',
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    value: selectedOptions[index],
+                    value: selectedOptionIndex[index],
                     onChanged: (bool? value) {
                       setState(() {
-                        selectedOptions[index] = value ?? false;
-
-                        // if (value ?? false) {
-                        //   optionVotes[index]++;
-                        // } else {
-                        //   optionVotes[index]--;
-                        // }
+                        selectedOptionIndex[index] = value!;
                       });
                     });
               }),
@@ -139,6 +139,44 @@ class _VoteCheckboxState extends State<VoteCheckbox> {
                   ),
                 ),
                 onPressed: () async {
+                  String tmpUserMail = '1112'; //這裡要更改為根據使用者的userMall
+                  final tmpResult = await APIservice.seletallVoteResult(
+                      vID: widget.vote.vID, userMall: tmpUserMail);
+                  // 存儲更新後的投票結果內容    
+                  List<Map<String, dynamic>> contents = [];
+                  // 遍歷所有投票選項
+                  for (int i = 0; i < _voteOptions.length; i++) {
+                    // 從投票結果中獲取當前選項的 oID
+                    int curremtOID = tmpResult[1][i]["oID"];
+                    // 檢查當前選項是否被選中
+                    bool isSelected = selectedOptionIndex[i];
+                    // 創建包含投票結果相關信息的 Map
+                    Map<String, dynamic> content = {
+                      'vID': widget.vote.vID,
+                      'oID': curremtOID,
+                      'userMall': tmpUserMail,
+                      'status': isSelected ? 1 : 0,
+                    };
+
+                    contents.add(content);// 添加到 contents 列表中
+
+                    print('Content $i: $content');
+                    // 遍歷 contents 列表，向伺服器更新每個投票結果
+                    for (int i = 0; i < contents.length; i++) {
+                      // 向伺服器發送更新投票結果的請求
+                      final result = await APIservice.updateResult(
+                          content: contents[i],
+                          voteResultID: tmpResult[1][i]["voteResultID"]);
+                      // 從投票結果中獲取當前選項的 oID    
+                      int tmpOid = tmpResult[1][i]["oID"]; 
+                      if (result[0]) {
+                        print('更改$tmpOid結果成功');
+                      } else {
+                        print('更改$tmpOid結果失敗');
+                      }
+                    }
+                  }
+                  // 導航到投票結果頁面
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

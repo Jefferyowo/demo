@@ -10,7 +10,7 @@ class VoteResultPage extends StatefulWidget {
   final int vID;
 
   VoteResultPage({
-    required this.voteName, // 投票問題的描述，必需的參數
+    required this.voteName,
     required this.vID,
   });
 
